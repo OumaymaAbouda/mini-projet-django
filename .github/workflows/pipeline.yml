@@ -1,0 +1,107 @@
+name: Nutritrack DevSecOps Pipeline
+
+on:
+  push:
+    branches: [ "main" ] # Se lance à chaque push sur la branche main
+
+env:
+  # Utilise la variable configurée dans GitHub pour le nom de l'image
+  DOCKER_IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/nutritrack-app
+
+jobs:
+  # --- JOB 1 : TESTS & QUALITÉ (SONARQUBE) ---
+  test-and-quality:
+    runs-on: ubuntu-latest
+    services:
+      # Base de données temporaire pour les tests Django
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: nutritrack_db
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: pass123
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Requis pour l'analyse SonarQube
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies and Run Tests
+        env:
+          POSTGRES_DB: nutritrack_db
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: pass123
+          POSTGRES_HOST: localhost
+        run: |
+          cd nutritrack
+          pip install -r requirements.txt
+          python manage.py test
+
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+
+  # --- JOB 2 : SCAN DE SÉCURITÉ DU CODE (SNYK & TRIVY) ---
+  security-scans:
+    runs-on: ubuntu-latest
+    needs: test-and-quality # On attend que les tests passent
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Snyk Security Scan (Dependencies)
+        uses: snyk/actions/python@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --file=nutritrack/requirements.txt
+
+      - name: Trivy FS Scan (Filesystem)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          severity: 'CRITICAL'
+          exit-code: '1' # Bloque le pipeline si une faille CRITIQUE est trouvée
+
+  # --- JOB 3 : BUILD, IMAGE SCAN & PUSH DOCKER HUB ---
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: security-scans
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Construction locale pour scan de l'image avant l'envoi
+      - name: Build image for testing
+        run: |
+          docker build -t ${{ env.DOCKER_IMAGE }}:test ./nutritrack
+
+      - name: Trivy Image Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.DOCKER_IMAGE }}:test'
+          severity: 'CRITICAL'
+          exit-code: '1'
+
+      # Si le scan d'image est OK, on publie officiellement
+      - name: Build and Push official image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./nutritrack
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:latest
+            ${{ env.DOCKER_IMAGE }}:v${{ github.run_number }}
