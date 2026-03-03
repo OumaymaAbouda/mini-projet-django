@@ -1,0 +1,400 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitnessHub • {{ goal|title }} Workout Plan</title>
+    <link rel="stylesheet" href="{% static 'workouts/css/workout_plan2.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fas fa-dumbbell"></i>
+            <h1>Fitness<span>Hub</span></h1>
+        </div>
+
+        <div class="user-info">
+            <div class="goal-display">
+                <div class="goal-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div>
+                    <h3>Goal: {{ goal|title }}</h3>
+                    <p>5-Day Program</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{% url 'home' %}">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="active">
+                    <i class="fas fa-dumbbell"></i>
+                    <span>Workouts</span>
+                    <span class="badge">Active</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'nutrition:nutrition_plan' %}">
+                    <i class="fas fa-utensils"></i>
+                    <span>Nutrition</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'my_meals' %}">
+                    <i class="fas fa-apple-alt"></i>
+                    <span>My meals</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'profile' %}">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+
+            <!-- LOGOUT - FORMULAIRE POST -->
+            <div class="nav-item logout-item">
+                <form method="POST" action="{% url 'logout' %}" class="logout-form-sidebar">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p><i class="far fa-calendar"></i> Generated on {{ plan.0.date }}</p>
+            <p><i class="fas fa-fire"></i> {{ total_exercises }} exercises</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div class="page-title">
+                <div>
+                    <h1>🏋️ Workout Plan</h1>
+                    <p class="page-subtitle">Your personalized 5-day workout plan for {{ goal }} weight</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="regenerateBtn">
+                        <i class="fas fa-sync-alt"></i> Regenerate Plan
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Workout Progress -->
+        <section class="workout-progress">
+            <div class="progress-header">
+                <h2><i class="fas fa-trophy"></i> Weekly Progress</h2>
+                <div class="progress-controls">
+                    <button class="progress-reset-btn" id="resetProgressBtn">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-milestones">
+                        <span class="milestone" data-percent="0">Start</span>
+                        <span class="milestone" data-percent="25">25%</span>
+                        <span class="milestone" data-percent="50">50%</span>
+                        <span class="milestone" data-percent="75">75%</span>
+                        <span class="milestone" data-percent="100">Complete</span>
+                    </div>
+                </div>
+
+                <div class="progress-stats">
+                    <div class="progress-stat">
+                        <div class="stat-icon">
+                            <i class="far fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="daysCompleted">0</span>
+                            <span class="stat-label">Days</span>
+                        </div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="exercisesCompleted">0</span>
+                            <span class="stat-label">Exercises</span>
+                        </div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-stopwatch"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalMinutes">0</span>
+                            <span class="stat-label">Minutes</span>
+                        </div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="caloriesBurned">0</span>
+                            <span class="stat-label">Calories</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-summary">
+                    <span id="progressPercentage" class="percentage-display">0% Complete</span>
+                    <span id="progressMessage" class="progress-message">Start your first exercise!</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5-Day Workout Plan -->
+        <section class="workout-days">
+            {% for day in plan %}
+            <article class="day-card workout-day"
+                     data-day="{{ forloop.counter }}">
+                <div class="day-header">
+                    <div class="day-title">
+                        <div class="day-number">{{ forloop.counter }}</div>
+                        <div class="day-info">
+                            <h2>{{ day.day }}</h2>
+                            <p class="day-calories">
+                                <i class="far fa-calendar"></i> {{ day.date }}</p>
+                        </div>
+                    </div>
+
+                    <div class="day-stats">
+                        <div class="stat">
+                            <span class="stat-value">{{ day.total_time }}</span>
+                            <span class="stat-label">Minutes</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">{{ day.exercises|length }}</span>
+                            <span class="stat-label">Exercises</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">{{ day.categories|length }}</span>
+                            <span class="stat-label">Categories</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exercises-grid">
+                    {% for ex in day.exercises %}
+                    <div class="exercise-card" data-exercise-id="{{ ex.id }}">
+                        <div class="exercise-image-container">
+                            <img src="{% static 'workouts/images/' %}{{ ex.image }}"
+                                 alt="{{ ex.name }}"
+                                 class="exercise-image"
+                                 onerror="this.src='https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop'">
+                            <div class="exercise-badge">
+                                <i class="fas fa-dumbbell"></i>
+                                {{ ex.category|title }}
+                            </div>
+                        </div>
+
+                        <div class="exercise-content">
+                            <div class="exercise-header">
+                                <h3 class="exercise-title">{{ ex.name }}</h3>
+                                <div class="exercise-difficulty">
+                                    {% if ex.difficulty == 'beginner' %}
+                                    <span class="difficulty-badge beginner"><i class="fas fa-seedling"></i> Beginner</span>
+                                    {% elif ex.difficulty == 'intermediate' %}
+                                    <span class="difficulty-badge intermediate"><i class="fas fa-fire"></i> Intermediate</span>
+                                    {% else %}
+                                    <span class="difficulty-badge advanced"><i class="fas fa-bolt"></i> Advanced</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="exercise-details">
+                                <div class="detail-item">
+                                    <div class="detail-icon">
+                                        <i class="fas fa-redo"></i>
+                                    </div>
+                                    <div class="detail-info">
+                                        <span class="detail-label">Sets</span>
+                                        <span class="detail-value">{{ ex.sets }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-item">
+                                    <div class="detail-icon">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </div>
+                                    <div class="detail-info">
+                                        <span class="detail-label">Reps</span>
+                                        <span class="detail-value">{{ ex.reps }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-item">
+                                    <div class="detail-icon">
+                                        <i class="fas fa-stopwatch"></i>
+                                    </div>
+                                    <div class="detail-info">
+                                        <span class="detail-label">Time</span>
+                                        <span class="detail-value">{{ ex.time }} min</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-item">
+                                    <div class="detail-icon">
+                                        <i class="fas fa-bed"></i>
+                                    </div>
+                                    <div class="detail-info">
+                                        <span class="detail-label">Rest</span>
+                                        <span class="detail-value">{{ ex.rest }}s</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="exercise-actions">
+                                <button class="action-btn done-btn"
+                                        data-exercise="{{ ex.id }}"
+                                        data-day="{{ forloop.parentloop.counter }}">
+                                    <i class="far fa-circle"></i>
+                                    <span>Mark Done</span>
+                                </button>
+
+                                <button class="action-btn timer-btn"
+                                        data-time="{{ ex.time }}"
+                                        data-exercise="{{ ex.name }}">
+                                    <i class="fas fa-play"></i>
+                                    <span>Start Timer</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+
+        <!-- Weekly Stats -->
+        <section class="weekly-stats">
+            <div class="stats-header">
+                <h2><i class="fas fa-chart-bar"></i> Weekly Statistics</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Total Exercises</h3>
+                        <p>{{ total_exercises|default:"0" }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Total Time</h3>
+                        <p>{{ total_minutes|default:"0" }} minutes</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Goal Focus</h3>
+                        <p>{{ goal|title }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Program Duration</h3>
+                        <p>5 Days</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- Timer Modal -->
+<div class="timer-modal" id="timerModal">
+    <div class="timer-modal-content">
+        <div class="timer-header">
+            <h3 id="timerExerciseName">Exercise Timer</h3>
+            <button class="timer-close" id="closeTimerBtn">&times;</button>
+        </div>
+        <div class="timer-display">
+            <div class="timer-circle">
+                <svg width="200" height="200">
+                    <circle class="timer-bg" cx="100" cy="100" r="90"></circle>
+                    <circle class="timer-progress" cx="100" cy="100" r="90"></circle>
+                </svg>
+                <div class="timer-text">
+                    <span id="timerMinutes">00</span>:<span id="timerSeconds">00</span>
+                </div>
+            </div>
+        </div>
+        <div class="timer-exercise-info">
+            <p id="timerInfoText">Timer in progress - Close to stop</p>
+        </div>
+    </div>
+</div>
+
+<!-- Completion Modal -->
+<div class="completion-modal" id="completionModal">
+    <div class="completion-content">
+        <div class="completion-icon">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <h3>Excellent Work!</h3>
+        <p id="completionMessage">You've completed an exercise!</p>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer"></div>
+
+    <script>
+        // Passer le chemin statique au JavaScript
+        const STATIC_IMAGES_URL = "{% static 'workouts/images/' %}";
+    </script>
+    <script src="{% static 'workouts/js/workout_plan.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Confirmation pour logout
+    const logoutForms = document.querySelectorAll('.logout-form-sidebar');
+    logoutForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            if (!confirm('Are you sure you want to logout?')) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

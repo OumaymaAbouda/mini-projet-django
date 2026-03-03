@@ -1,0 +1,675 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Meal • FitnessHub</title>
+    <link rel="stylesheet" href="{% static 'workouts/css/workout_plan2.css' %}">
+    <link rel="stylesheet" href="{% static 'meals/css/edit_meal_modern.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fas fa-dumbbell"></i>
+            <h1>Fitness<span>Hub</span></h1>
+        </div>
+
+        <div class="user-info">
+            <div class="goal-display">
+                <div class="goal-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div>
+                    <h3>Edit Meal</h3>
+                    <p>Update nutrition</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{% url 'home' %}">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'workout_plan' %}">
+                    <i class="fas fa-dumbbell"></i>
+                    <span>Workouts</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'nutrition:nutrition_plan' %}">
+                    <i class="fas fa-utensils"></i>
+                    <span>Nutrition</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'my_meals' %}" class="active">
+                    <i class="fas fa-apple-alt"></i>
+                    <span>My meals</span>
+                    <span class="badge">Active</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'profile' %}">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+            <div class="nav-item logout-item">
+                <form method="POST" action="{% url 'logout' %}" class="logout-form-sidebar">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p><i class="far fa-calendar"></i> Today: {% now "d M Y" %}</p>
+            <p><i class="fas fa-fire"></i> {{ meal.total_calories|floatformat:0 }} kcal</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Toast Notifications Container -->
+        <div id="toast-container" class="toast-container"></div>
+        
+        <div class="edit-container">
+            <!-- Header -->
+            <header class="edit-header animate-fade-in">
+                <div class="edit-header-content">
+                    <h1>✏️ Edit Meal</h1>
+                    <p>Update <strong>{{ meal.name }}</strong> details and ingredients</p>
+                </div>
+                <div class="edit-header-actions">
+                    <a href="{% url 'my_meals' %}" class="btn-modern btn-modern-outline">
+                        <i class="fas fa-arrow-left"></i> Back to Meals
+                    </a>
+                </div>
+            </header>
+
+            <!-- Meal Info Card -->
+            <section class="meal-info-card animate-fade-in" style="animation-delay: 0.1s">
+                <div class="meal-info-header">
+                    <div class="meal-info-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div style="flex: 1">
+                        <h2 style="margin: 0 0 8px 0; color: var(--edit-text);">Meal Information</h2>
+                        <p style="color: var(--edit-text-secondary); margin: 0;">Update your meal name</p>
+                    </div>
+                </div>
+
+                <form method="POST" class="meal-name-form">
+                    {% csrf_token %}
+                    <input type="text"
+                           name="meal_name"
+                           value="{{ meal.name }}"
+                           placeholder="Enter meal name..."
+                           required>
+                    <button type="submit" name="update_meal_name" class="btn-modern btn-modern-primary">
+                        <i class="fas fa-save"></i> Update Name
+                    </button>
+                </form>
+            </section>
+
+            <!-- Add Ingredient Card -->
+            <section class="add-ingredient-card animate-fade-in" style="animation-delay: 0.2s">
+                <h2 style="margin: 0 0 24px 0; color: var(--edit-text); font-size: 1.5rem;">
+                    <i class="fas fa-plus-circle" style="color: var(--edit-success);"></i> Add New Ingredient
+                </h2>
+
+                <form method="POST" class="add-ingredient-form" id="addIngredientForm">
+                    {% csrf_token %}
+                    <div class="form-input-group">
+                        <label for="ingredientInput"><i class="fas fa-search"></i> Ingredient Name</label>
+                        <input type="text"
+                               name="ingredient_name"
+                               id="ingredientInput"
+                               list="ingredientsList"
+                               placeholder="e.g., apple, chicken, rice..."
+                               autocomplete="off"
+                               required>
+                        <datalist id="ingredientsList">
+                            <!-- Will be populated by JavaScript -->
+                        </datalist>
+                    </div>
+
+                    <div class="form-input-group">
+                        <label for="quantityInput"><i class="fas fa-weight"></i> Quantity (grams)</label>
+                        <input type="number"
+                               name="quantity"
+                               id="quantityInput"
+                               value="100"
+                               min="1"
+                               step="1"
+                               required>
+                    </div>
+
+                    <div style="display: flex; align-items: flex-end; gap: 12px;">
+                        <button type="submit" name="add_ingredient" class="btn-modern btn-modern-success">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                        <button type="button" class="btn-modern btn-modern-outline" onclick="clearIngredientInput()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                </form>
+
+                <p style="color: var(--edit-text-muted); margin: 20px 0 0 0; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-info-circle" style="color: var(--edit-info);"></i>
+                    Nutrition data automatically fetched from OpenFoodFacts
+                </p>
+            </section>
+
+            <!-- Current Ingredients -->
+            <section class="animate-fade-in" style="animation-delay: 0.3s">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h2 style="margin: 0; color: var(--edit-text); font-size: 1.5rem;">
+                        <i class="fas fa-layer-group" style="color: var(--edit-secondary);"></i> Current Ingredients
+                        <span style="color: var(--edit-text-secondary); font-size: 1rem; margin-left: 10px;">
+                            ({{ ingredients|length }})
+                        </span>
+                    </h2>
+                </div>
+
+                {% if ingredients %}
+                    <div class="ingredients-grid-modern">
+                        {% for ingredient in ingredients %}
+                        <div class="ingredient-card-modern animate-slide-in" style="animation-delay: {{ forloop.counter0|add:"0.1" }}s">
+                            <div class="ingredient-card-header">
+                                <div>
+                                    <div class="ingredient-name">{{ ingredient.name|title }}</div>
+                                    <div class="ingredient-quantity">{{ ingredient.quantity }}g</div>
+                                </div>
+                                <span class="ingredient-calories-badge">
+                                    <i class="fas fa-fire"></i> {{ ingredient.calories|floatformat:1 }} kcal
+                                </span>
+                            </div>
+
+                            <div class="ingredient-macros">
+                                <div class="macro-item macro-protein">
+                                    <span class="macro-label">Protein</span>
+                                    <span class="macro-value">{{ ingredient.protein|floatformat:1 }}g</span>
+                                </div>
+                                <div class="macro-item macro-carbs">
+                                    <span class="macro-label">Carbs</span>
+                                    <span class="macro-value">{{ ingredient.carbs|floatformat:1 }}g</span>
+                                </div>
+                                <div class="macro-item macro-fat">
+                                    <span class="macro-label">Fat</span>
+                                    <span class="macro-value">{{ ingredient.fat|floatformat:1 }}g</span>
+                                </div>
+                            </div>
+
+                            <div class="ingredient-actions-modern">
+                                <button type="button"
+                                        class="btn-modern btn-modern-outline btn-modern-sm"
+                                        onclick="openEditModal({{ ingredient.id }}, '{{ ingredient.name }}', {{ ingredient.quantity }})"
+                                        style="flex: 1;">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <form action="{% url 'delete_ingredient' ingredient.id %}"
+                                      method="POST"
+                                      style="flex: 1; margin: 0;">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="btn-modern btn-modern-danger btn-modern-sm"
+                                            onclick="return confirm('Delete {{ ingredient.name }}?')"
+                                            style="width: 100%;">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Nutrition Summary -->
+                    <div class="nutrition-summary-modern animate-fade-in" style="animation-delay: 0.4s">
+                        <h2><i class="fas fa-chart-pie"></i> Nutrition Summary</h2>
+                        <div class="nutrition-stats">
+                            <div class="nutrition-stat">
+                                <div class="stat-icon">
+                                    <i class="fas fa-fire"></i>
+                                </div>
+                                <div class="stat-value" id="nutritionSummaryTotalCalories">{{ total_calories|floatformat:0 }}</div>
+                                <div class="stat-label">Total Calories</div>
+                            </div>
+                            <div class="nutrition-stat">
+                                <div class="stat-icon">
+                                    <i class="fas fa-drumstick-bite"></i>
+                                </div>
+                                <div class="stat-value" id="nutritionSummaryTotalProtein">{{ total_protein|floatformat:1 }}g</div>
+                                <div class="stat-label">Protein</div>
+                            </div>
+                            <div class="nutrition-stat">
+                                <div class="stat-icon">
+                                    <i class="fas fa-bread-slice"></i>
+                                </div>
+                                <div class="stat-value" id="nutritionSummaryTotalCarbs">{{ total_carbs|floatformat:1 }}g</div>
+                                <div class="stat-label">Carbs</div>
+                            </div>
+                            <div class="nutrition-stat">
+                                <div class="stat-icon">
+                                    <i class="fas fa-oil-can"></i>
+                                </div>
+                                <div class="stat-value" id="nutritionSummaryTotalFat">{{ total_fat|floatformat:1 }}g</div>
+                                <div class="stat-label">Fat</div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="empty-state-modern">
+                        <div class="empty-icon-modern">
+                            🥗
+                        </div>
+                        <h3>No Ingredients Yet</h3>
+                        <p>Start by adding ingredients to see nutrition information and track your meal details</p>
+                        <button type="button" class="btn-modern btn-modern-primary" onclick="document.getElementById('ingredientInput').focus()">
+                            <i class="fas fa-plus"></i> Add First Ingredient
+                        </button>
+                    </div>
+                {% endif %}
+            </section>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 16px; justify-content: center; margin-top: 40px;">
+                <a href="{% url 'my_meals'  %}" class="btn-modern btn-modern-primary">
+                    <i class="fas fa-eye"></i> View Meal Details
+                </a>
+                <a href="{% url 'my_meals' %}" class="btn-modern btn-modern-outline">
+                    <i class="fas fa-check"></i> Finish Editing
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modern Modal -->
+<div class="modal-modern" id="editModal">
+    <div class="modal-content-modern">
+        <div class="modal-header-modern">
+            <h3>Edit Ingredient</h3>
+            <button class="close-modal-modern" onclick="closeEditModal()">×</button>
+        </div>
+
+        <div class="modal-body-modern">
+            <form method="POST" id="editIngredientForm">
+                {% csrf_token %}
+                <div class="form-input-group" style="margin-bottom: 24px;">
+                    <label for="editIngredientName"><i class="fas fa-tag"></i> Ingredient Name</label>
+                    <input type="text"
+                           name="ingredient_name"
+                           id="editIngredientName"
+                           list="editIngredientsList"
+                           autocomplete="off"
+                           required>
+                    <datalist id="editIngredientsList">
+                        <!-- Will be populated by JavaScript -->
+                    </datalist>
+                </div>
+
+                <div class="form-input-group" style="margin-bottom: 24px;">
+                    <label for="editQuantity"><i class="fas fa-weight"></i> Quantity (grams)</label>
+                    <input type="number"
+                           name="quantity"
+                           id="editQuantity"
+                           min="1"
+                           step="1"
+                           required>
+                </div>
+
+                <input type="hidden" name="ingredient_id" id="editIngredientId">
+            </form>
+        </div>
+
+        <div class="modal-actions-modern">
+            <button type="button" class="btn-modern btn-modern-outline" onclick="closeEditModal()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="submit" form="editIngredientForm" name="update_ingredient" class="btn-modern btn-modern-primary" id="editIngredientSubmit">
+                <i class="fas fa-save"></i> Update Ingredient
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Utility functions
+    function clearIngredientInput() {
+        document.getElementById('ingredientInput').value = '';
+        document.getElementById('quantityInput').value = '100';
+        document.getElementById('ingredientInput').focus();
+    }
+
+    // Modal functions
+    function openEditModal(id, name, quantity) {
+        document.getElementById('editIngredientName').value = name;
+        document.getElementById('editQuantity').value = quantity || 100;
+        document.getElementById('editIngredientId').value = id;
+        document.getElementById('editModal').style.display = 'flex';
+        document.getElementById('editIngredientName').focus();
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    // Populate edit form datalist
+    function populateEditIngredientsList() {
+        const datalist = document.getElementById('editIngredientsList');
+        if (datalist) {
+            validIngredients.forEach(ingredient => {
+                const option = document.createElement('option');
+                option.value = ingredient;
+                datalist.appendChild(option);
+            });
+        }
+    }
+
+
+    // Handle edit form submission with validation
+    document.getElementById('editIngredientForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const ingredientName = document.getElementById('editIngredientName').value.trim();
+        
+        // Validate ingredient
+        if (!isValidIngredient(ingredientName)) {
+            showToast('❌ Please enter a valid ingredient name. Examples: apple, chicken, rice, broccoli', 'error');
+            document.getElementById('editIngredientName').focus();
+            return false;
+        }
+        
+
+        const formData = new FormData();
+        formData.append('ingredient_id', document.getElementById('editIngredientId').value);
+        formData.append('ingredient_name', ingredientName);
+        formData.append('quantity', document.getElementById('editQuantity').value);
+        formData.append('update_ingredient', 'true');
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                showEditLoadingIndicator = false;
+                showToast('❌ Error updating ingredient. Please try again.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showEditLoadingIndicator = false;
+            showToast('❌ Error updating ingredient. Please try again.', 'error');
+        });
+    });
+
+    // Close modal on outside click
+    document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeEditModal();
+        }
+    });
+
+        // Fonction pour mettre à jour le total des calories et macros
+        function updateTotalCalories() {
+            const ingredientCards = document.querySelectorAll('.ingredient-card-modern');
+            let totalCalories = 0;
+            let totalProtein = 0;
+            let totalCarbs = 0;
+            let totalFat = 0;
+            
+            ingredientCards.forEach(card => {
+                // Extraire les calories
+                const caloriesText = card.querySelector('.ingredient-calories-badge')?.textContent || '0 kcal';
+                const calories = parseFloat(caloriesText.replace(' kcal', '').replace(/[^\d.]/g, '')) || 0;
+                totalCalories += calories;
+                
+                // Extraire les macros
+                const macroItems = card.querySelectorAll('.macro-value');
+                if (macroItems.length >= 3) {
+                    const protein = parseFloat(macroItems[0]?.textContent?.replace('g', '')) || 0;
+                    const carbs = parseFloat(macroItems[1]?.textContent?.replace('g', '')) || 0;
+                    const fat = parseFloat(macroItems[2]?.textContent?.replace('g', '')) || 0;
+                    
+                    totalProtein += protein;
+                    totalCarbs += carbs;
+                    totalFat += fat;
+                }
+            });
+            
+            // Mettre à jour l'affichage dans Nutrition Summary
+            const totalCaloriesDisplay = document.getElementById('nutritionSummaryTotalCalories');
+            if (totalCaloriesDisplay) {
+                totalCaloriesDisplay.textContent = Math.round(totalCalories);
+            }
+            
+            const totalProteinDisplay = document.getElementById('nutritionSummaryTotalProtein');
+            if (totalProteinDisplay) {
+                totalProteinDisplay.textContent = totalProtein.toFixed(1) + 'g';
+            }
+            
+            const totalCarbsDisplay = document.getElementById('nutritionSummaryTotalCarbs');
+            if (totalCarbsDisplay) {
+                totalCarbsDisplay.textContent = totalCarbs.toFixed(1) + 'g';
+            }
+            
+            const totalFatDisplay = document.getElementById('nutritionSummaryTotalFat');
+            if (totalFatDisplay) {
+                totalFatDisplay.textContent = totalFat.toFixed(1) + 'g';
+            }
+        }
+
+        // Observer pour mettre à jour automatiquement quand des ingrédients sont ajoutés/supprimés
+        const ingredientsGrid = document.querySelector('.ingredients-grid-modern');
+        if (ingredientsGrid) {
+            const observer = new MutationObserver(function(mutations) {
+                updateTotalCalories();
+            });
+            
+            observer.observe(ingredientsGrid, {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        // Liste d'ingrédients valides pour autocomplete et validation
+        const validIngredients = [
+            'apple', 'banana', 'orange', 'strawberry', 'blueberry', 'grape', 'watermelon', 'pineapple', 
+            'mango', 'kiwi', 'peach', 'pear', 'cherry', 'plum', 'apricot', 'avocado', 'lemon', 'lime',
+            'carrot', 'broccoli', 'spinach', 'lettuce', 'tomato', 'cucumber', 'bell pepper', 'onion',
+            'garlic', 'potato', 'sweet potato', 'zucchini', 'eggplant', 'cauliflower', 'cabbage',
+            'celery', 'mushroom', 'corn', 'peas', 'green beans', 'asparagus',
+            'chicken', 'chicken breast', 'beef', 'pork', 'turkey', 'lamb', 'duck', 'ham',
+            'salmon', 'tuna', 'cod', 'shrimp', 'crab', 'lobster', 'fish', 'sardine', 'mackerel',
+            'egg', 'egg white', 'egg yolk',
+            'milk', 'cheese', 'yogurt', 'greek yogurt', 'cottage cheese', 'butter', 'cream',
+            'sour cream', 'mozzarella', 'cheddar', 'parmesan', 'feta',
+            'rice', 'brown rice', 'quinoa', 'oatmeal', 'oats', 'wheat', 'bread', 'whole wheat bread',
+            'pasta', 'spaghetti', 'noodles', 'couscous', 'barley', 'buckwheat',
+            'almond', 'walnut', 'peanut', 'cashew', 'pistachio', 'hazelnut', 'pecan',
+            'chia seeds', 'flax seeds', 'sunflower seeds', 'pumpkin seeds', 'sesame seeds',
+            'chickpea', 'lentil', 'black bean', 'kidney bean', 'pinto bean', 'white bean',
+            'soybean', 'tofu', 'tempeh', 'edamame',
+            'olive oil', 'coconut oil', 'vegetable oil', 'canola oil', 'avocado oil',
+            'honey', 'maple syrup', 'sugar', 'salt', 'pepper', 'basil', 'oregano', 'thyme',
+            'chocolate', 'dark chocolate', 'peanut butter', 'almond butter', 'jam',
+            'bacon', 'sausage', 'hot dog', 'burger', 'pizza',
+            'water', 'coffee', 'tea', 'green tea', 'orange juice', 'apple juice',
+            'cereal', 'granola', 'crackers', 'pretzel', 'popcorn'
+        ];
+
+        // Populate datalist with valid ingredients
+        function populateIngredientsList() {
+            const datalist = document.getElementById('ingredientsList');
+            if (datalist) {
+                validIngredients.forEach(ingredient => {
+                    const option = document.createElement('option');
+                    option.value = ingredient;
+                    datalist.appendChild(option);
+                });
+            }
+        }
+
+        // Validate ingredient name
+        function isValidIngredient(name) {
+            if (!name || name.trim().length < 2) return false;
+            const nameLower = name.toLowerCase().trim();
+            
+            // Check exact match
+            if (validIngredients.includes(nameLower)) return true;
+            
+            // Check if contains valid ingredient word
+            const words = nameLower.split(/\s+/);
+            for (const word of words) {
+                if (word.length >= 3) {
+                    for (const valid of validIngredients) {
+                        if (valid.includes(word) || word.includes(valid)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+
+        // Toast notification system
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            // Icons based on type
+            const icons = {
+                'success': 'fa-check-circle',
+                'error': 'fa-exclamation-circle',
+                'warning': 'fa-exclamation-triangle',
+                'info': 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas ${icons[type] || icons['info']}"></i>
+                </div>
+                <div class="toast-message">${message}</div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            // Trigger animation
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Form submission with validation and loading
+        document.addEventListener('DOMContentLoaded', function() {
+            populateIngredientsList();
+            populateEditIngredientsList();
+            
+            // Add validation to edit ingredient input
+            const editIngredientInput = document.getElementById('editIngredientName');
+            if (editIngredientInput) {
+                editIngredientInput.addEventListener('blur', function() {
+                    const value = this.value.trim();
+                    if (value && !isValidIngredient(value)) {
+                        this.style.borderColor = 'var(--edit-danger)';
+                        showToast('⚠️ Please enter a valid ingredient name', 'warning');
+                    } else {
+                        this.style.borderColor = '';
+                    }
+                });
+            }
+            
+            const ingredientForm = document.getElementById('addIngredientForm');
+            const ingredientInput = document.getElementById('ingredientInput');
+            
+            // Validate on input
+            if (ingredientInput) {
+                ingredientInput.addEventListener('blur', function() {
+                    const value = this.value.trim();
+                    if (value && !isValidIngredient(value)) {
+                        this.style.borderColor = 'var(--edit-danger)';
+                        showToast('⚠️ Please enter a valid ingredient name (e.g., apple, chicken, rice)', 'warning');
+                    } else {
+                        this.style.borderColor = '';
+                    }
+                });
+            }
+            
+            // Show loading on form submit
+            if (ingredientForm) {
+                ingredientForm.addEventListener('submit', function(e) {
+                    const ingredientName = ingredientInput.value.trim();
+                    
+                    if (!isValidIngredient(ingredientName)) {
+                        e.preventDefault();
+                        showToast('❌ Please enter a valid ingredient name. Examples: apple, chicken, rice, broccoli', 'error');
+                        ingredientInput.focus();
+                        return false;
+                    }
+                    
+                    
+                });
+            }
+
+            // Display Django messages as toasts
+            // Django messages passed from template
+            var djangoMessages = [];
+            {% if messages %}
+                {% for message in messages %}
+                    djangoMessages.push({
+                        text: '{{ message|escapejs }}',
+                        type: '{{ message.tags|default:"info" }}'
+                    });
+                {% endfor %}
+            {% endif %}
+
+            djangoMessages.forEach(function(msg) {
+                if (msg && msg.text) {
+                    showToast(msg.text, msg.type || 'info');
+                }
+            });
+
+            // Focus ingredient input on page load
+            document.getElementById('ingredientInput')?.focus();
+            
+            // Mettre à jour le total des calories au chargement
+            updateTotalCalories();
+        });
+</script>
+</body>
+</html>

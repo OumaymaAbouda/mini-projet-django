@@ -1,0 +1,323 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile • FitnessHub</title>
+    <link rel="stylesheet" href="{% static 'accounts/css/profile.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar (comme workout_plan) -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fas fa-dumbbell"></i>
+            <h1>Fitness<span>Hub</span></h1>
+        </div>
+
+        <!-- Profil utilisateur -->
+        <div class="user-info">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info-text">
+                    <h4>{{ user.username }}</h4>
+                    <p>Premium Member</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{% url 'home' %}">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'workout_plan' %}">
+                    <i class="fas fa-dumbbell"></i>
+                    <span>Workouts</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'nutrition:nutrition_plan' %}">
+                    <i class="fas fa-utensils"></i>
+                    <span>Nutrition</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'my_meals' %}">
+                    <i class="fas fa-apple-alt"></i>
+                    <span>My Meals</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="active">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                    <span class="badge">Active</span>
+                </a>
+            </div>
+
+            <!-- LOGOUT -->
+            <div class="nav-item logout-item">
+                <form method="POST" action="{% url 'logout' %}" class="logout-form-sidebar">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p><i class="fas fa-heartbeat"></i> Stay Healthy!</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="page-title">
+                <div>
+                    <h1>👤 My Profile</h1>
+                    <p class="page-subtitle">Manage your personal information and preferences</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{% url 'update_profile' %}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Edit Profile
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Profile Content -->
+        <section class="profile-content">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="avatar-section">
+                    <div class="avatar-container">
+                        <img src="{% static 'accounts/images/default-avatar.webp' %}" alt="Profile" class="avatar">
+                        <div class="avatar-status">
+                            <i class="fas fa-circle"></i>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                    <div class="profile-title">
+                        <h2>{{ user.get_full_name|default:user.username }}</h2>
+                        <div class="profile-badges">
+                            <span class="badge member-badge">
+                                <i class="fas fa-crown"></i>
+                                Premium Member
+                            </span>
+                            <span class="badge streak-badge">
+                                <i class="fas fa-fire"></i>
+                                {{ workout_day_streak|default:"0" }} day streak
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1);">
+                        <i class="fas fa-ruler-vertical" style="color: #10b981;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Height</h3>
+                        <p class="stat-value">{{ profile.height|default:"--" }} cm</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(255, 140, 0, 0.1);">
+                        <i class="fas fa-weight-scale" style="color: #FF8C00;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Weight</h3>
+                        <p class="stat-value">{{ profile.weight|default:"--" }} kg</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1);">
+                        <i class="fas fa-bullseye" style="color: #8b5cf6;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Goal</h3>
+                        <p class="stat-value">{{ profile.get_goal_display|default:"--" }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1);">
+                        <i class="far fa-calendar" style="color: #3b82f6;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Member Since</h3>
+                        <p class="stat-value">{{ user.date_joined|date:"M Y" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="info-section">
+                <h3 class="section-title">
+                    <i class="fas fa-user-circle"></i>
+                    Personal Information
+                </h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-user-tag"></i>
+                            Username
+                        </div>
+                        <div class="info-value">{{ user.username }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-user"></i>
+                            Full Name
+                        </div>
+                        <div class="info-value">{{ user.get_full_name|default:"Not set" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-envelope"></i>
+                            Email
+                        </div>
+                        <div class="info-value">{{ user.email|default:"Not set" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-venus-mars"></i>
+                            Gender
+                        </div>
+                        <div class="info-value">{{ profile.get_gender_display|default:"Not set" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-birthday-cake"></i>
+                            Birthday
+                        </div>
+                        <div class="info-value">{{ profile.birthday|date:"F d, Y"|default:"Not set" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-ruler-vertical"></i>
+                            Height
+                        </div>
+                        <div class="info-value">{{ profile.height|default:"--" }} cm</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-weight-scale"></i>
+                            Weight
+                        </div>
+                        <div class="info-value">{{ profile.weight|default:"--" }} kg</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-bullseye"></i>
+                            Fitness Goal
+                        </div>
+                        <div class="info-value">
+                            <span class="goal-badge">{{ profile.get_goal_display|default:"Not set" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Details -->
+            <div class="info-section">
+                <h3 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    Account Details
+                </h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-calendar-plus"></i>
+                            Account Created
+                        </div>
+                        <div class="info-value">{{ user.date_joined|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Last Login
+                        </div>
+                        <div class="info-value">{{ user.last_login|date:"F d, Y H:i"|default:"Never" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-shield-alt"></i>
+                            Account Status
+                        </div>
+                        <div class="info-value">
+                            <span class="status-badge active">
+                                <i class="fas fa-check-circle"></i>
+                                Active
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'update_profile' %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i>
+                    Edit Profile
+                </a>
+                <a href="{% url 'password_change' %}" class="btn btn-outline">
+                    <i class="fas fa-key"></i>
+                    Change Password
+                </a>
+                <form method="POST" action="{% url 'logout' %}" class="logout-form-profile">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Messages -->
+{% if messages %}
+<div class="messages-container">
+    {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button class="message-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+    // Confirmation pour logout
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutForms = document.querySelectorAll('.logout-form-sidebar, .logout-form-profile');
+        logoutForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                if (!confirm('Are you sure you want to logout?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

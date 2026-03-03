@@ -1,0 +1,590 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Meal • FitnessHub</title>
+    <link rel="stylesheet" href="{% static 'workouts/css/workout_plan2.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Modern Add Meal Styles */
+        :root {
+            --add-primary: #FF8C00;
+            --add-primary-dark: #E67E00;
+            --add-primary-light: #FFB74D;
+            --add-primary-glow: rgba(255, 140, 0, 0.15);
+            --add-secondary: #8B5CF6;
+            --add-success: #10B981;
+            --add-danger: #EF4444;
+            --add-warning: #F59E0B;
+            --add-info: #3B82F6;
+            --add-bg: #F8FAFC;
+            --add-surface: #FFFFFF;
+            --add-surface-alt: #F1F5F9;
+            --add-border: #E2E8F0;
+            --add-border-light: #F1F5F9;
+            --add-text: #1E293B;
+            --add-text-secondary: #64748B;
+            --add-text-muted: #94A3B8;
+        }
+
+        .add-main-content {
+            background: var(--add-bg);
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .add-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Header Actions */
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid var(--add-border-light);
+        }
+
+        .header-title h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--add-primary), var(--add-warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .header-title p {
+            font-size: 1.1rem;
+            color: var(--add-text-secondary);
+        }
+
+        .back-btn-modern {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: var(--add-surface);
+            color: var(--add-text);
+            border: 2px solid var(--add-border);
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .back-btn-modern:hover {
+            background: var(--add-surface-alt);
+            border-color: var(--add-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modern Form Card */
+        .form-card-modern {
+            background: var(--add-surface);
+            border-radius: 20px;
+            padding: 48px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--add-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-icon-container {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .form-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--add-primary), var(--add-warning));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.3);
+        }
+
+        .form-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--add-text);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .form-subtitle {
+            color: var(--add-text-secondary);
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* Modern Form Styling - IMPORTANT POUR LE FONCTIONNEMENT */
+        .django-form-modern {
+            width: 100%;
+        }
+
+        .form-group-modern {
+            margin-bottom: 32px;
+        }
+
+        .form-label-modern {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--add-text);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-label-modern i {
+            color: var(--add-primary);
+            width: 20px;
+            text-align: center;
+        }
+
+        .required-star {
+            color: var(--add-danger);
+            font-weight: 700;
+            margin-left: 4px;
+        }
+
+        /* Style Django form fields PROPERLY */
+        .django-form-modern input[type="text"],
+        .django-form-modern input[type="email"],
+        .django-form-modern input[type="password"],
+        .django-form-modern input[type="number"],
+        .django-form-modern input[type="date"],
+        .django-form-modern select,
+        .django-form-modern textarea {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--add-border);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--add-surface);
+            color: var(--add-text);
+            font-family: 'Inter', sans-serif;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        .django-form-modern input:focus,
+        .django-form-modern select:focus,
+        .django-form-modern textarea:focus {
+            outline: none;
+            border-color: var(--add-primary);
+            box-shadow: 0 0 0 4px var(--add-primary-glow);
+            transform: translateY(-2px);
+        }
+
+        .form-help {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: var(--add-text-secondary);
+            line-height: 1.5;
+            padding-left: 30px;
+        }
+
+        .form-error {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: var(--add-danger);
+            font-weight: 500;
+            padding-left: 30px;
+        }
+
+        /* Modern Submit Button - IMPORTANT */
+        .submit-btn-modern {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            background: linear-gradient(135deg, var(--add-primary), var(--add-primary-dark));
+            color: white;
+            margin-top: 40px;
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.3);
+        }
+
+        .submit-btn-modern:hover {
+            background: linear-gradient(135deg, var(--add-primary-dark), #CC7000);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 140, 0, 0.4);
+        }
+
+        .submit-btn-modern:active {
+            transform: translateY(-1px);
+        }
+
+        /* Messages Django */
+        .django-messages {
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+        }
+
+        .django-messages .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .django-messages .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .django-messages .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .django-messages .alert.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Info Box */
+        .info-box-modern {
+            background: linear-gradient(135deg, #FEFCE8, #FEF9C3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 40px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .info-box-modern h4 {
+            color: var(--add-text);
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box-modern h4 i {
+            color: var(--add-warning);
+        }
+
+        .info-box-modern p {
+            color: var(--add-text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .add-main-content {
+                padding: 20px;
+            }
+
+            .form-card-modern {
+                padding: 32px 24px;
+                border-radius: 16px;
+            }
+
+            .form-title {
+                font-size: 1.75rem;
+            }
+
+            .form-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .submit-btn-modern {
+                padding: 16px 32px;
+                font-size: 1rem;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fas fa-dumbbell"></i>
+            <h1>Fitness<span>Hub</span></h1>
+        </div>
+
+        <div class="user-info">
+            <div class="goal-display">
+                <div class="goal-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div>
+                    <h3>Add Meal</h3>
+                    <p>Create new meal</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{% url 'home' %}">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'workout_plan' %}">
+                    <i class="fas fa-dumbbell"></i>
+                    <span>Workouts</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'nutrition:nutrition_plan' %}">
+                    <i class="fas fa-utensils"></i>
+                    <span>Nutrition</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'my_meals' %}">
+                    <i class="fas fa-apple-alt"></i>
+                    <span>My meals</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'profile' %}">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+            <div class="nav-item logout-item">
+                <form method="POST" action="{% url 'logout' %}" class="logout-form-sidebar">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p><i class="far fa-calendar"></i> Today: {% now "d M Y" %}</p>
+            <p><i class="fas fa-plus-circle"></i> New Meal</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="add-main-content">
+            <div class="add-container">
+                <!-- Header Actions -->
+                <div class="header-actions">
+                    <div class="header-title">
+                        <h1>🍽️ Create New Meal</h1>
+                        <p>Start your nutrition tracking journey</p>
+                    </div>
+                    <a href="{% url 'my_meals' %}" class="back-btn-modern">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Meals
+                    </a>
+                </div>
+
+                <!-- Messages Django -->
+                {% if messages %}
+                <div class="django-messages">
+                    {% for message in messages %}
+                    <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">
+                        {{ message }}
+                        <button onclick="this.parentElement.remove()" style="background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px;">×</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Form Card -->
+                <div class="form-card-modern">
+                    <div class="form-icon-container">
+                        <div class="form-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+
+                        <h2 class="form-title">Meal Information</h2>
+                        <p class="form-subtitle">Give your meal a name to start tracking nutrition</p>
+                    </div>
+
+                    <!-- FORMULAIRE QUI FONCTIONNE -->
+                    <form method="post" class="django-form-modern" id="addMealForm">
+                        {% csrf_token %}
+
+                        {% for field in meal_form %}
+                        <div class="form-group-modern">
+                            <label for="{{ field.id_for_label }}" class="form-label-modern">
+                                <i class="fas fa-{% if field.name == 'name' %}tag{% else %}calendar{% endif %}"></i>
+                                {{ field.label }}
+                                {% if field.field.required %}<span class="required-star">*</span>{% endif %}
+                            </label>
+
+                            <!-- Affiche le champ Django CORRECTEMENT -->
+                            {{ field }}
+
+                            {% if field.help_text %}
+                            <span class="form-help">
+                                <i class="fas fa-info-circle"></i> {{ field.help_text }}
+                            </span>
+                            {% endif %}
+
+                            {% if field.errors %}
+                            {% for error in field.errors %}
+                            <span class="form-error">
+                                <i class="fas fa-exclamation-circle"></i> {{ error }}
+                            </span>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <!-- BOUTON QUI FONCTIONNE -->
+                        <button type="submit" class="submit-btn-modern" id="submitBtn">
+                            <i class="fas fa-arrow-right"></i>
+                            Continue to Add Ingredients
+                        </button>
+                    </form>
+
+                    <!-- Info Box -->
+                    <div class="info-box-modern">
+                        <h4><i class="fas fa-lightbulb"></i> Best Practices</h4>
+                        <p>Choose a descriptive name like "Post-Workout Protein Shake" or "Healthy Lunch Salad" to easily identify your meals later.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Add Meal page loaded - DEBUG MODE");
+
+        // 1. Auto-remove messages after 5 seconds
+        const messages = document.querySelectorAll('.alert');
+        messages.forEach(message => {
+            setTimeout(() => {
+                message.style.opacity = '0';
+                message.style.transform = 'translateY(-10px)';
+                setTimeout(() => message.remove(), 300);
+            }, 5000);
+        });
+
+        // 2. Focus on first input field
+        const firstInput = document.querySelector('input[type="text"], input[type="email"], input[type="number"]');
+        if (firstInput) {
+            setTimeout(() => {
+                firstInput.focus();
+                console.log("DEBUG: Focus set on first input:", firstInput);
+            }, 300);
+        }
+
+        // 3. Form submission handler - ESSENTIEL POUR LE FONCTIONNEMENT
+        const form = document.getElementById('addMealForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (form && submitBtn) {
+            console.log("DEBUG: Form found, CSRF token:", document.querySelector('[name=csrfmiddlewaretoken]') ? 'Present' : 'Missing');
+
+            form.addEventListener('submit', function(e) {
+                console.log("DEBUG: Form submission started");
+                console.log("DEBUG: Form is valid:", this.checkValidity());
+
+                // Show loading state
+                const originalHTML = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Meal...';
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.8';
+
+                // Log form data for debugging
+                const formData = new FormData(this);
+                console.log("DEBUG: Form data:");
+                for (let [key, value] of formData.entries()) {
+                    if (key !== 'csrfmiddlewaretoken') {
+                        console.log(`  ${key}: ${value}`);
+                    }
+                }
+
+                // Allow form to submit normally
+                return true;
+            });
+        } else {
+            console.error("DEBUG: Form or submit button not found!");
+            if (!form) console.error("DEBUG: Form element not found");
+            if (!submitBtn) console.error("DEBUG: Submit button not found");
+        }
+
+        // 4. Debug: Check form structure
+        console.log("DEBUG: Total form elements:", form ? form.elements.length : "No form");
+        console.log("DEBUG: CSRF token present:", document.querySelector('[name=csrfmiddlewaretoken]') ? "Yes" : "No");
+
+        // 5. If form has validation errors, show them
+        const errors = document.querySelectorAll('.form-error');
+        if (errors.length > 0) {
+            console.log("DEBUG: Form has validation errors:", errors.length);
+        }
+    });
+</script>
+</body>
+</html>

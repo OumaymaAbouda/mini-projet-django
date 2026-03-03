@@ -1,0 +1,924 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitnessHub • Add Ingredients to {{ meal.name }}</title>
+    <link rel="stylesheet" href="{% static 'meals/css/add_ingredients3.css' %}">
+    <link rel="stylesheet" href="{% static 'meals/css/message.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Variables FitnessHub */
+        :root {
+            --orange: #FF8C00;
+            --orange-dark: #E67E00;
+            --orange-light: #FFA500;
+            --orange-glow: rgba(255, 140, 0, 0.3);
+            --green: #10b981;
+            --green-dark: #047857;
+            --green-light: #34d399;
+            --purple: #8b5cf6;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --dark: #1e293b;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 15px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            background: var(--background);
+        }
+
+        /* Sidebar - EXACTEMENT COMME DANS WORKOUT_PLAN */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--green-dark) 0%, var(--green) 100%);
+            color: white;
+            padding: 30px 20px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 5px 0 25px rgba(4, 120, 87, 0.15);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .logo i:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .logo span {
+            color: var(--orange);
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .user-info:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .goal-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .goal-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .goal-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .goal-display h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .goal-display p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            /* Masquer la scrollbar tout en gardant le scroll fonctionnel */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE et Edge */
+        }
+
+        .sidebar-nav::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .nav-item {
+            margin: 8px 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--orange);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+            color: white;
+        }
+
+        .nav-item a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item a.active::before {
+            transform: translateX(0);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .badge {
+            margin-left: auto;
+            background: var(--orange);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+        }
+
+        .logout-form-sidebar {
+            display: block;
+            width: 100%;
+        }
+
+        .logout-button {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.85);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            font-size: inherit;
+            cursor: pointer;
+        }
+
+        .logout-button::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: #ef4444;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background: rgba(239, 68, 68, 0.15);
+            transform: translateX(5px);
+            color: white;
+        }
+
+        .logout-button:hover::before {
+            transform: translateX(0);
+        }
+
+        .logout-button i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .nav-item.logout-item {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-footer {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background: var(--background);
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--orange), var(--orange-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--orange), var(--orange-light));
+            color: white;
+            border: 1px solid var(--orange);
+            box-shadow: var(--shadow), 0 0 0 0 rgba(255, 140, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--orange-dark), var(--orange));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg), 0 8px 25px 0 rgba(255, 140, 0, 0.4);
+            border-color: var(--orange-dark);
+        }
+
+        /* Messages Styling */
+        .messages-container {
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+
+        .message {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+            border: 1px solid var(--green);
+            color: #065F46;
+        }
+
+        .message.error {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+            border: 1px solid #EF4444;
+            color: #7F1D1D;
+        }
+
+        .message.warning {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            border: 1px solid #F59E0B;
+            color: #92400E;
+        }
+
+        .message-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 8px;
+            color: inherit;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .message-close:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 24px;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                overflow-x: auto;
+                padding: 24px 0;
+                gap: 8px;
+            }
+
+            .nav-item {
+                flex-shrink: 0;
+            }
+
+            .main-content {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar FitnessHub -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i>
+                <h1>Fitness<span>Hub</span></h1>
+            </div>
+
+            <div class="user-info">
+                <div class="goal-display">
+                    <div class="goal-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div>
+                        <h3>Add Ingredients</h3>
+                        <p>{{ meal.name }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item">
+                    <a href="{% url 'home' %}">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'workout_plan' %}">
+                        <i class="fas fa-dumbbell"></i>
+                        <span>Workouts</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'nutrition:nutrition_plan' %}">
+                        <i class="fas fa-utensils"></i>
+                        <span>Nutrition</span>
+                    </a>
+                </div>
+                <div class="nav-item active">
+                    <a href="{% url 'my_meals' %}">
+                        <i class="fas fa-apple-alt"></i>
+                        <span>My Meals</span>
+                        <span class="badge">Active</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'profile' %}">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </a>
+                </div>
+                <div class="nav-item logout-item">
+                    <form method="POST" action="{% url 'logout' %}" class="logout-form-sidebar">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-button">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p><i class="far fa-calendar"></i> Today: {% now "d M Y" %}</p>
+                <p><i class="fas fa-apple-alt"></i> Adding Ingredients</p>
+            </div>
+        </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Toast Notifications Container -->
+        <div id="toast-container" class="toast-container"></div>
+            <header class="page-header">
+                <div class="page-title">
+                    <div>
+                        <h1>🍽️ Add Ingredients to {{ meal.name }}</h1>
+                        <p class="page-subtitle">Add ingredients with quantities to calculate total nutrition</p>
+                    </div>
+                    <div class="header-actions">
+                        <a href="{% url 'my_meals' %}" class="btn" style="background: rgba(139, 92, 246, 0.1); color: var(--purple); border: 1px solid rgba(139, 92, 246, 0.3);">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Meals
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+
+            <div class="card fade-in">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h1>Add Ingredients</h1>
+                        <p>Enter ingredient name and quantity to calculate nutrition</p>
+                    </div>
+
+                    <!-- Formulaire d'ajout d'ingrédient -->
+                    <form method="POST" class="ingredient-form">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ingredient_name" class="form-label">Ingredient Name</label>
+                                <input type="text"
+                                       name="ingredient_name"
+                                       list="ingredientsList"
+                                       placeholder="e.g., Chicken Breast, Brown Rice..."
+                                       required
+                                       class="form-input"
+                                       id="ingredientInput"
+                                       autocomplete="off">
+                                <datalist id="ingredientsList">
+                                    <!-- Will be populated by JavaScript -->
+                                </datalist>
+                            </div>
+                            <div class="form-group">
+                                <label for="quantity" class="form-label">Quantity (g)</label>
+                                <input type="number"
+                                       name="quantity"
+                                       class="quantity-input"
+                                       placeholder="Quantity"
+                                       value="100"
+                                       min="1"
+                                       step="1"
+                                       required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                            Add Ingredient
+                        </button>
+                    </form>
+
+                    <!-- Liste des ingrédients -->
+                    <div class="ingredients-section">
+                        <h3 class="section-title">Added Ingredients</h3>
+                        <div class="ingredients-grid">
+                            {% for ingredient in ingredients %}
+                            <div class="ingredient-card fade-in">
+                                <div class="ingredient-info">
+                                    <div class="ingredient-name">{{ ingredient.name|title }}</div>
+                                    <div class="ingredient-nutrition">
+                                        <span class="nutrition-badge">{{ ingredient.quantity|floatformat:0 }}g</span>
+                                        <span class="nutrition-badge">P: {{ ingredient.protein|floatformat:1 }}g</span>
+                                        <span class="nutrition-badge">C: {{ ingredient.carbs|floatformat:1 }}g</span>
+                                        <span class="nutrition-badge">F: {{ ingredient.fat|floatformat:1 }}g</span>
+                                    </div>
+                                </div>
+                                <div class="ingredient-calories">{{ ingredient.calories|floatformat:1 }} kcal</div>
+                            </div>
+                            {% empty %}
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
+                                    </svg>
+                                </div>
+                                <h3>No Ingredients Added</h3>
+                                <p>Start by adding your first ingredient above</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Nutrition Summary -->
+                    <div class="nutrition-summary">
+                        <div class="stats-grid">
+                            <div class="stat-card" style="border-left: 4px solid var(--orange);">
+                                <div class="stat-value" id="summaryTotalCalories">{{ total_calories|floatformat:0 }}</div>
+                                <div class="stat-label">Total Calories</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="summaryTotalProtein">{{ total_protein|floatformat:1 }}g</div>
+                                <div class="stat-label">Protein</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="summaryTotalCarbs">{{ total_carbs|floatformat:1 }}g</div>
+                                <div class="stat-label">Carbs</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="summaryTotalFat">{{ total_fat|floatformat:1 }}g</div>
+                                <div class="stat-label">Fat</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="form-actions">
+                        {% if ingredients %}
+                            <!-- Si au moins un ingrédient, afficher bouton Terminer -->
+                            <a href="{% url 'my_meals' %}" class="btn btn-primary btn-finish">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none"/>
+                                </svg>
+                                Finish & View Meal Details
+                            </a>
+                        {% else %}
+                            <!-- Si aucun ingrédient, afficher bouton Annuler (supprime le repas vide) -->
+                            <a href="{% url 'add_ingredients' meal.id %}?cancel=1" class="btn btn-danger btn-finish">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" fill="none"/>
+                                </svg>
+                                Cancel & Delete Meal
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Liste d'ingrédients valides pour autocomplete et validation
+        const validIngredients = [
+            'apple', 'banana', 'orange', 'strawberry', 'blueberry', 'grape', 'watermelon', 'pineapple', 
+            'mango', 'kiwi', 'peach', 'pear', 'cherry', 'plum', 'apricot', 'avocado', 'lemon', 'lime',
+            'carrot', 'broccoli', 'spinach', 'lettuce', 'tomato', 'cucumber', 'bell pepper', 'onion',
+            'garlic', 'potato', 'sweet potato', 'zucchini', 'eggplant', 'cauliflower', 'cabbage',
+            'celery', 'mushroom', 'corn', 'peas', 'green beans', 'asparagus',
+            'chicken', 'chicken breast', 'beef', 'pork', 'turkey', 'lamb', 'duck', 'ham',
+            'salmon', 'tuna', 'cod', 'shrimp', 'crab', 'lobster', 'fish', 'sardine', 'mackerel',
+            'egg', 'egg white', 'egg yolk',
+            'milk', 'cheese', 'yogurt', 'greek yogurt', 'cottage cheese', 'butter', 'cream',
+            'sour cream', 'mozzarella', 'cheddar', 'parmesan', 'feta',
+            'rice', 'brown rice', 'quinoa', 'oatmeal', 'oats', 'wheat', 'bread', 'whole wheat bread',
+            'pasta', 'spaghetti', 'noodles', 'couscous', 'barley', 'buckwheat',
+            'almond', 'walnut', 'peanut', 'cashew', 'pistachio', 'hazelnut', 'pecan',
+            'chia seeds', 'flax seeds', 'sunflower seeds', 'pumpkin seeds', 'sesame seeds',
+            'chickpea', 'lentil', 'black bean', 'kidney bean', 'pinto bean', 'white bean',
+            'soybean', 'tofu', 'tempeh', 'edamame',
+            'olive oil', 'coconut oil', 'vegetable oil', 'canola oil', 'avocado oil',
+            'honey', 'maple syrup', 'sugar', 'salt', 'pepper', 'basil', 'oregano', 'thyme',
+            'chocolate', 'dark chocolate', 'peanut butter', 'almond butter', 'jam',
+            'bacon', 'sausage', 'hot dog', 'burger', 'pizza',
+            'water', 'coffee', 'tea', 'green tea', 'orange juice', 'apple juice',
+            'cereal', 'granola', 'crackers', 'pretzel', 'popcorn'
+        ];
+
+        // Populate datalist with valid ingredients
+        function populateIngredientsList() {
+            const datalist = document.getElementById('ingredientsList');
+            if (datalist) {
+                validIngredients.forEach(ingredient => {
+                    const option = document.createElement('option');
+                    option.value = ingredient;
+                    datalist.appendChild(option);
+                });
+            }
+        }
+
+        // Validate ingredient name
+        function isValidIngredient(name) {
+            if (!name || name.trim().length < 2) return false;
+            const nameLower = name.toLowerCase().trim();
+            
+            // Check exact match
+            if (validIngredients.includes(nameLower)) return true;
+            
+            // Check if contains valid ingredient word
+            const words = nameLower.split(/\s+/);
+            for (const word of words) {
+                if (word.length >= 3) {
+                    for (const valid of validIngredients) {
+                        if (valid.includes(word) || word.includes(valid)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+
+        // Toast notification system for add_ingredients
+        function showToast(message, type = 'success') {
+            // Create toast container if it doesn't exist
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icons = {
+                'success': 'fa-check-circle',
+                'error': 'fa-exclamation-circle',
+                'warning': 'fa-exclamation-triangle',
+                'info': 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas ${icons[type] || icons['info']}"></i>
+                </div>
+                <div class="toast-message">${message}</div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+        // Focus sur le champ ingrédient au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            const ingredientInput = document.getElementById('ingredientInput');
+            if (ingredientInput) {
+                ingredientInput.focus();
+            }
+            
+            // Mettre à jour le total des calories depuis les ingrédients affichés
+            updateTotalCalories();
+        });
+
+        // Permettre l'envoi avec Enter
+        const ingredientInputEl = document.getElementById('ingredientInput');
+        if (ingredientInputEl) {
+            ingredientInputEl.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.querySelector('.ingredient-form').submit();
+                }
+            });
+        }
+
+        // Fonction pour calculer et mettre à jour le total des calories
+        function updateTotalCalories() {
+            const ingredientCards = document.querySelectorAll('.ingredient-card');
+            let totalCalories = 0;
+            let totalProtein = 0;
+            let totalCarbs = 0;
+            let totalFat = 0;
+            
+            ingredientCards.forEach(card => {
+                const caloriesText = card.querySelector('.ingredient-calories')?.textContent || '0 kcal';
+                const calories = parseFloat(caloriesText.replace(' kcal', '')) || 0;
+                totalCalories += calories;
+                
+                // Extraire les macros depuis les badges
+                const badges = card.querySelectorAll('.nutrition-badge');
+                if (badges.length >= 4) {
+                    const proteinText = badges[1]?.textContent?.replace('P: ', '').replace('g', '') || '0';
+                    const carbsText = badges[2]?.textContent?.replace('C: ', '').replace('g', '') || '0';
+                    const fatText = badges[3]?.textContent?.replace('F: ', '').replace('g', '') || '0';
+                    
+                    totalProtein += parseFloat(proteinText) || 0;
+                    totalCarbs += parseFloat(carbsText) || 0;
+                    totalFat += parseFloat(fatText) || 0;
+                }
+            });
+            
+            // Mettre à jour le résumé en bas (Nutrition Summary)
+            const summaryTotalCalories = document.getElementById('summaryTotalCalories');
+            if (summaryTotalCalories) {
+                summaryTotalCalories.textContent = Math.round(totalCalories);
+            }
+            
+            const summaryTotalProtein = document.getElementById('summaryTotalProtein');
+            if (summaryTotalProtein) {
+                summaryTotalProtein.textContent = totalProtein.toFixed(1) + 'g';
+            }
+            
+            const summaryTotalCarbs = document.getElementById('summaryTotalCarbs');
+            if (summaryTotalCarbs) {
+                summaryTotalCarbs.textContent = totalCarbs.toFixed(1) + 'g';
+            }
+            
+            const summaryTotalFat = document.getElementById('summaryTotalFat');
+            if (summaryTotalFat) {
+                summaryTotalFat.textContent = totalFat.toFixed(1) + 'g';
+            }
+        }
+
+        // Observer pour mettre à jour automatiquement quand des ingrédients sont ajoutés/supprimés
+        const ingredientsGrid = document.querySelector('.ingredients-grid');
+        if (ingredientsGrid) {
+            const observer = new MutationObserver(function(mutations) {
+                updateTotalCalories();
+            });
+            
+            observer.observe(ingredientsGrid, {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        // Display Django messages as toasts (only once)
+        {% if messages %}
+            var djangoMessages = [];
+            {% for message in messages %}
+                djangoMessages.push({
+                    text: '{{ message|escapejs }}',
+                    type: '{{ message.tags|default:"info" }}'
+                });
+            {% endfor %}
+            // Afficher chaque message une seule fois
+            djangoMessages.forEach(function(msg) {
+                if (msg && msg.text) {
+                    showToast(msg.text, msg.type || 'info');
+                }
+            });
+        {% endif %}
+
+
+        // Animation for card
+        const card = document.querySelector('.card');
+        if (card) {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        }
+    </script>
+</body>
+</html>

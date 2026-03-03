@@ -1,0 +1,400 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Plan - FitnessHub</title>
+    <!-- On charge uniquement le fichier CSS externe qui fonctionne -->
+    <link rel="stylesheet" href="{% static 'nutrition/css/nutrition_plan2.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i>
+                <h1>Fitness<span>Hub</span></h1>
+            </div>
+
+            <div class="user-info">
+                <div class="goal-display">
+                    <div class="goal-icon">
+                        {% if goal == "lose" %}
+                            <i class="fas fa-weight"></i>
+                        {% elif goal == "gain" %}
+                            <i class="fas fa-bullseye"></i>
+                        {% else %}
+                            <i class="fas fa-balance-scale"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3>Goal: {{ goal|title }}</h3>
+                        <p>Daily Calories: {{ daily_calories }} kcal</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item">
+                    <a href="{% url 'home' %}">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'workout_plan' %}">
+                        <i class="fas fa-dumbbell"></i>
+                        <span>Workouts</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'nutrition:nutrition_plan' %}" class="active">
+                        <i class="fas fa-utensils"></i>
+                        <span>Nutrition</span>
+                        <span class="badge">Active</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'my_meals' %}">
+                        <i class="fas fa-apple-alt"></i>
+                        <span>My meals</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'profile' %}">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </a>
+                </div>
+
+                <!-- LOGOUT FONCTIONNEL -->
+                <div class="nav-item" style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.15);">
+                    <form method="POST" action="{% url 'logout' %}" class="logout-form-sidebar">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-button">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>Stay Consistent • Stay Healthy</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div class="page-title">
+                    <div>
+                        <h1>🍽 Nutrition Plan</h1>
+                        <p class="page-subtitle">
+                            Your personalized 7-day meal plan for {{ goal }} weight
+                            {% if today_day_name %}
+                            <span class="today-info">
+                                • Today: <strong>{{ today_day_name }}</strong> (Day {{ today_day_number }})
+                            </span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <a href="{% url 'nutrition:generate_plan' %}"
+                       class="btn btn-primary"
+                       onclick="return confirm('Generate a new meal plan? Your current plan will be replaced.');"
+                       id="generateBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        Generate New Plan
+                    </a>
+                </div>
+            </header>
+
+            <!-- Calories Summary -->
+            <section class="calories-summary">
+                <div class="calories-header">
+                    <h2>Daily Nutrition Overview</h2>
+                    <div class="goal-badge">
+                        Goal: {{ goal|title }} Weight
+                    </div>
+                </div>
+
+                <div class="calories-grid">
+                    <div class="calorie-item">
+                        <div class="calorie-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="calorie-value">{{ daily_calories }} kcal</div>
+                        <div class="calorie-label">Daily Total</div>
+                    </div>
+
+                    <div class="calorie-item">
+                        <div class="calorie-icon">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <div class="calorie-value">{{ breakfast_cal }} kcal</div>
+                        <div class="calorie-label">Breakfast</div>
+                    </div>
+
+                    <div class="calorie-item">
+                        <div class="calorie-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div class="calorie-value">{{ lunch_cal }} kcal</div>
+                        <div class="calorie-label">Lunch</div>
+                    </div>
+
+                    <div class="calorie-item">
+                        <div class="calorie-icon">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <div class="calorie-value">{{ dinner_cal }} kcal</div>
+                        <div class="calorie-label">Dinner</div>
+                    </div>
+                </div>
+
+                <div class="total-calories">
+                    Based on your profile and {{ goal }} weight goal
+                </div>
+            </section>
+
+            <!-- 7-Day Nutrition Plan -->
+            <section class="nutrition-days">
+                {% for day_data in week_plan %}
+                <article class="day-card {% if day_data.is_today %}today-card{% endif %}"
+                         data-day="{{ day_data.day_number }}"
+                         id="day-{{ day_data.day_number }}">
+
+                    <div class="day-header">
+                        <div class="day-title">
+                            <div class="day-number">{{ day_data.day_number }}</div>
+                            <div class="day-info">
+                                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                    <h2 style="margin: 0;">{{ day_data.day_name }} </h2>
+                                    {% if day_data.is_today %}
+                                    <span class="today-badge">
+                                        <i class="fas fa-star"></i> TODAY
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <p class="day-calories">
+                                    <i class="fas fa-fire"></i>
+                                    Total: {{ day_data.total_calories }} kcal
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="day-stats">
+                            <div class="stat">
+                                <span class="stat-value">3</span>
+                                <span class="stat-label">Meals</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-value">{{ goal|title }}</span>
+                                <span class="stat-label">Goal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meals-grid">
+                        <!-- Breakfast -->
+                        <div class="meal-card breakfast">
+                            <div class="meal-header">
+                                <div class="meal-icon">
+                                    <i class="fas fa-sun"></i>
+                                </div>
+                                <div class="meal-title">
+                                    <h3>Breakfast</h3>
+                                    <div class="meal-calories">{{ day_data.breakfast.1 }} kcal</div>
+                                </div>
+                            </div>
+                            <div class="meal-content">
+                                <p class="meal-description">{{ day_data.breakfast.0 }}</p>
+                                <div class="meal-macros">
+                                    <div class="macro-item">
+                                        <span class="macro-value">
+                                            {% if day_data.breakfast.2 %}{{ day_data.breakfast.2 }}g{% else %}25g{% endif %}
+                                        </span>
+                                        <span class="macro-label">Protein</span>
+                                    </div>
+                                    <div class="macro-item">
+                                        <span class="macro-value">
+                                            {% if day_data.breakfast.3 %}{{ day_data.breakfast.3 }}g{% else %}40g{% endif %}
+                                        </span>
+                                        <span class="macro-label">Carbs</span>
+                                    </div>
+                                    <div class="macro-item">
+                                        <span class="macro-value">
+                                            {% if day_data.breakfast.4 %}{{ day_data.breakfast.4 }}g{% else %}15g{% endif %}
+                                        </span>
+                                        <span class="macro-label">Fat</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lunch -->
+                        <div class="meal-card lunch">
+                            <div class="meal-header">
+                                <div class="meal-icon">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
+                                <div class="meal-title">
+                                    <h3>Lunch</h3>
+                                    <div class="meal-calories">{{ day_data.lunch.1 }} kcal</div>
+                                </div>
+                            </div>
+                            <div class="meal-content">
+                                <p class="meal-description">{{ day_data.lunch.0 }}</p>
+                                <div class="meal-macros">
+                                    <div class="macro-item">
+                                        <span class="macro-value">
+                                            {% if day_data.lunch.2 %}{{ day_data.lunch.2 }}g{% else %}35g{% endif %}
+                                        </span>
+                                        <span class="macro-label">Protein</span>
+                                    </div>
+                                    <div class="macro-item">
+                                        <span class="macro-value">
+                                            {% if day_data.lunch.3 %}{{ day_data.lunch.3 }}g{% else %}50g{% endif %}
+                                        </span>
+                                        <span class="macro-label">Carbs</span>
+                                    </div>
+                                    <div class="macro-item">
+                                        <span class="macro-value">
+                                            {% if day_data.lunch.4 %}{{ day_data.lunch.4 }}g{% else %}20g{% endif %}
+                                        </span>
+                                        <span class="macro-label">Fat</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dinner -->
+                        <div class="meal-card dinner">
+                            <div class="meal-header">
+                                <div class="meal-icon">
+                                    <i class="fas fa-moon"></i>
+                                </div>
+                                <div class="meal-title">
+                                    <h3>Dinner</h3>
+                                    <div class="meal-calories">{{ day_data.dinner.1 }} kcal</div>
+                                </div>
+                            </div>
+                            <div class="meal-content">
+                                <p class="meal-description">{{ day_data.dinner.0 }}</p>
+                                <div class="meal-macros">
+                                    <div class="macro-item">
+                                        <span class="macro-value">
+                                            {% if day_data.dinner.2 %}{{ day_data.dinner.2 }}g{% else %}30g{% endif %}
+                                        </span>
+                                        <span class="macro-label">Protein</span>
+                                    </div>
+                                    <div class="macro-item">
+                                        <span class="macro-value">
+                                            {% if day_data.dinner.3 %}{{ day_data.dinner.3 }}g{% else %}35g{% endif %}
+                                        </span>
+                                        <span class="macro-label">Carbs</span>
+                                    </div>
+                                    <div class="macro-item">
+                                        <span class="macro-value">
+                                            {% if day_data.dinner.4 %}{{ day_data.dinner.4 }}g{% else %}15g{% endif %}
+                                        </span>
+                                        <span class="macro-label">Fat</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% empty %}
+                <div class="no-plan">
+                    <i class="fas fa-utensils fa-3x"></i>
+                    <h3>No meal plan generated yet</h3>
+                    <a href="{% url 'nutrition:generate_plan' %}" class="btn btn-primary" id="generateFirstBtn">
+                        <i class="fas fa-plus"></i>
+                        Generate Your First Plan
+                    </a>
+                </div>
+                {% endfor %}
+            </section>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Messages from Django -->
+    {% if messages %}
+    <div class="django-messages">
+        {% for message in messages %}
+        <div class="toast toast-{{ message.tags|default:'info' }}">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            <span class="toast-message">{{ message }}</span>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // Auto-hide Django messages after 5 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.django-messages .toast').forEach(toast => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            });
+        }, 5000);
+
+        // Scroll automatique vers le jour d'aujourd'hui
+        document.addEventListener('DOMContentLoaded', () => {
+            // Utiliser le numéro du jour depuis le serveur
+            const todayDayNumber = parseInt("{{ today_day_number|default:0 }}");
+
+            if (todayDayNumber > 0) {
+                // Trouver la carte du jour d'aujourd'hui
+                const todayCard = document.getElementById(`day-${todayDayNumber}`);
+
+                if (todayCard) {
+                    // Scroll vers la carte d'aujourd'hui
+                    setTimeout(() => {
+                        todayCard.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center',
+                            inline: 'center'
+                        });
+
+                        // Effet visuel supplémentaire
+                        todayCard.style.transition = 'all 0.3s ease';
+                        todayCard.style.transform = 'scale(1.02)';
+
+                        setTimeout(() => {
+                            todayCard.style.transform = 'scale(1)';
+                        }, 300);
+
+                    }, 1000);
+                }
+            }
+
+            // Confirmation pour logout
+            const logoutForms = document.querySelectorAll('.logout-form-sidebar');
+            logoutForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Are you sure you want to logout?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

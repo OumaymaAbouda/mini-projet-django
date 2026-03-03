@@ -1,0 +1,432 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitnessHub Dashboard</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{% static 'meals/css/dashboard_home.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --orange: #FF8C00;
+            --orange-dark: #E67E00;
+            --orange-light: #FFA500;
+
+            --green: #10B981;
+            --green-dark: #047857;
+            --green-darker: #065F46;
+            --green-light: #34D399;
+
+            --purple: #8B5CF6;
+            --purple-dark: #7C3AED;
+            --purple-light: #A78BFA;
+
+            --blue: #3B82F6;
+            --blue-light: #60A5FA;
+
+            --background: #F8FAFC;
+            --surface: #FFFFFF;
+            --surface-light: #F1F5F9;
+            --dark: #1E293B;
+            --light: #F8FAFC;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+
+            --gradient-green: linear-gradient(135deg, var(--green), var(--green-light));
+            --gradient-orange: linear-gradient(135deg, var(--orange), var(--orange-light));
+            --gradient-purple: linear-gradient(135deg, var(--purple), var(--purple-light));
+
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+
+            --radius: 12px;
+            --radius-lg: 16px;
+
+            --transition: all 0.3s ease;
+        }
+
+        /* Logo amélioré */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-orange);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.25);
+            transition: var(--transition);
+        }
+
+        .logo-icon:hover {
+            transform: rotate(15deg) scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, white, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            background: var(--gradient-orange);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-dumbbell"></i>
+                </div>
+                <h1 class="logo-text">Fitness<span>Hub</span></h1>
+            </div>
+
+            <!-- User Profile -->
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <h4>{{ request.user.username }}</h4>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <div class="nav-item">
+                    <a href="#" class="active">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'workout_plan' %}">
+                        <i class="fas fa-dumbbell"></i>
+                        <span>Workouts</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'nutrition:nutrition_plan' %}">
+                        <i class="fas fa-utensils"></i>
+                        <span>Nutrition</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'my_meals' %}">
+                        <i class="fas fa-apple-alt"></i>
+                        <span>My Meals</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'profile' %}">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </a>
+                </div>
+
+                <!-- Logout -->
+                <div class="nav-item logout-item">
+                    <form method="POST" action="{% url 'logout' %}" class="logout-form-sidebar">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-button">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p><i class="fas fa-heartbeat"></i> Stay Consistent!</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <div class="greeting">
+                        <h1>Welcome back, {{ request.user.first_name|default:request.user.username }}! 👋</h1>
+                        <p>Track your fitness journey and achieve your goals</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="header-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-dumbbell" style="color: var(--purple);"></i>
+                            <div>
+                                <span class="stat-value">{{ today_workouts_count|default:"0" }}</span>
+                                <span class="stat-label">Today</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-fire" style="color: var(--orange);"></i>
+                            <div>
+                                <span class="stat-value">{{ today_calories_burned|default:"0" }}</span>
+                                <span class="stat-label">Cal Burned</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{% url 'profile' %}" class="profile-btn">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <section class="stats-grid">
+                <div class="stat-card" style="border-left: 4px solid var(--green);">
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1);">
+                        <i class="fas fa-apple-alt" style="color: var(--green);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Calories Today</h3>
+                        <p class="stat-number">{{ total_calories_today|default:"0" }}</p>
+                        <p class="stat-change positive">
+                            <i class="fas fa-utensils"></i>
+                            From {{ total_meals_today|default:"0" }} meal{{ total_meals_today|default:"0"|pluralize:"s" }} today
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card" style="border-left: 4px solid var(--orange);">
+                    <div class="stat-icon" style="background: rgba(255, 140, 0, 0.1);">
+                        <i class="fas fa-fire" style="color: var(--orange);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Calories Burned Today</h3>
+                        <p class="stat-number">{{ today_calories_burned|default:"0" }}</p>
+                        <p class="stat-change positive">
+                            <i class="fas fa-dumbbell"></i>
+                            {{ today_workouts_count|default:"0" }} exercises
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card" style="border-left: 4px solid var(--purple);">
+                    <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1);">
+                        <i class="fas fa-dumbbell" style="color: var(--purple);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Workouts This Week</h3>
+                        <p class="stat-number">{{ workouts_completed|default:"0" }}</p>
+                        <p class="stat-change">
+                            <i class="fas fa-fire"></i> {{ total_calories_burned_week|default:"0" }} cal burned
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card" style="border-left: 4px solid var(--blue);">
+                    <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1);">
+                        <i class="fas fa-calendar-check" style="color: var(--blue);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Day Streak</h3>
+                        <p class="stat-number">{{ workout_day_streak|default:"0" }}</p>
+                        <p class="stat-change positive">
+                            <i class="fas fa-fire"></i>
+                            Days completed
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-line"></i> Weekly Calories</h3>
+                        <select class="chart-filter">
+                            <option>This Week</option>
+                            <option>Last Week</option>
+                            <option>This Month</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="caloriesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-pie"></i> Nutrition Balance</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="nutritionChart"></canvas>
+                    </div>
+                    <div class="macros-info">
+                        <div class="macro-item">
+                            <span class="macro-dot" style="background: var(--green);"></span>
+                            <span>Protein: {{ protein_percent|default:"30" }}%</span>
+                        </div>
+                        <div class="macro-item">
+                            <span class="macro-dot" style="background: var(--orange);"></span>
+                            <span>Carbs: {{ carbs_percent|default:"50" }}%</span>
+                        </div>
+                        <div class="macro-item">
+                            <span class="macro-dot" style="background: var(--purple);"></span>
+                            <span>Fat: {{ fat_percent|default:"20" }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions">
+                <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+                <div class="actions-grid">
+                    <a href="{% url 'add_meal' %}" class="action-card">
+                        <div class="action-icon" style="background: var(--gradient-green);">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <h4>Add Meal</h4>
+                        <p>Track your nutrition intake</p>
+                    </a>
+
+                    <a href="{% url 'workout_plan' %}" class="action-card">
+                        <div class="action-icon" style="background: var(--gradient-orange);">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                        <h4>Start Workout</h4>
+                        <p>Begin exercise routine</p>
+                    </a>
+
+                    <a href="{% url 'my_meals' %}" class="action-card">
+                        <div class="action-icon" style="background: var(--gradient-purple);">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h4>Meal History</h4>
+                        <p>Tracked meals history</p>
+                    </a>
+
+                    <a href="{% url 'nutrition:nutrition_plan' %}" class="action-card">
+                        <div class="action-icon" style="background: linear-gradient(135deg, var(--blue), var(--blue-light));">
+                            <i class="fas fa-apple-alt"></i>
+                        </div>
+                        <h4>Nutrition Plan</h4>
+                        <p>View meal plans</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="recent-activity">
+                <div class="activity-header">
+                    <h2><i class="fas fa-history"></i> Recent Activity</h2>
+                    <a href="#" class="view-all">View All →</a>
+                </div>
+                <div class="activity-list">
+                    {% for activity in recent_activities|slice:":5" %}
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            {% if activity.type == 'workout' %}
+                            <i class="fas fa-dumbbell" style="color: var(--purple);"></i>
+                            {% else %}
+                            <i class="fas fa-utensils" style="color: var(--green);"></i>
+                            {% endif %}
+                        </div>
+                        <div class="activity-content">
+                            <h4>{{ activity.title }}</h4>
+                            <p>{{ activity.description }}</p>
+                            <span class="activity-time">{{ activity.time }}</span>
+                        </div>
+                        {% if activity.type == 'workout' %}
+                        <span class="activity-calories">{{ activity.calories }} cal</span>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-history"></i>
+                        <p>No recent activity</p>
+                        <a href="{% url 'workout_plan' %}" class="btn-small">Start a workout</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Chatbot -->
+    <div id="chat-icon">
+        <i class="fas fa-dumbbell"></i>
+    </div>
+
+    <div id="chatbot">
+        <div class="chatbot-header">
+            <span><i class="fas fa-robot"></i> Fitness AI Assistant</span>
+            <button id="close-chat"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chat" class="chat-window"></div>
+        <div class="chat-suggestions" id="chatSuggestions">
+            <button class="suggestion-btn" onclick="sendQuickMessage('How many calories did I eat today?')" type="button">
+                <i class="fas fa-fire"></i> Calories today?
+            </button>
+            <button class="suggestion-btn" onclick="sendQuickMessage('What is my streak?')" type="button">
+                <i class="fas fa-calendar-alt"></i> My streak
+            </button>
+            <button class="suggestion-btn" onclick="sendQuickMessage('Give me workout tips')" type="button">
+                <i class="fas fa-dumbbell"></i> Workout tips
+            </button>
+            <button class="suggestion-btn" onclick="sendQuickMessage('Nutrition advice')" type="button">
+                <i class="fas fa-apple-alt"></i> Nutrition advice
+            </button>
+        </div>
+        <div class="chat-inputs">
+            <input type="text" id="userInput" placeholder="Ask about fitness, nutrition..." autocomplete="off">
+            <button onclick="sendMessage()" id="sendButton"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        const dashboardData = {
+            weeklyCalories: {{ weekly_calories_data|default:"[]"|safe }},
+            weeklyWorkouts: {{ weekly_workouts_json|default:"[]"|safe }},
+            weeklyCaloriesBurned: {{ weekly_calories_burned_json|default:"[]"|safe }},
+            nutrition: {
+                protein: {{ protein_percent|default:"30" }},
+                carbs: {{ carbs_percent|default:"50" }},
+                fat: {{ fat_percent|default:"20" }}
+            },
+            user: {
+                name: "{{ request.user.first_name|default:request.user.username }}",
+                streak: {{ streak_days|default:"0" }},
+                calories: {{ total_calories|default:"0" }},
+                caloriesBurned: {{ today_calories_burned|default:"0" }},
+                workoutsToday: {{ today_workouts_count|default:"0" }},
+                workoutsWeek: {{ workouts_completed|default:"0" }}
+            }
+        };
+    </script>
+    <script src="{% static 'meals/js/dashboard_home.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Login</title>
+  <link rel="stylesheet" href="{% static 'accounts/css/login2.css' %}">
+</head>
+<body>
+  <div class="login-container">
+    <!-- Côté gauche - Image -->
+    <div class="login-image">
+      <img src="{% static 'accounts/images/login-image.webp' %}" alt="Welcome back!" />
+      <div class="image-text">
+        <h3>Welcome Back!</h3>
+        <p>Sign in to continue your health journey</p>
+      </div>
+    </div>
+
+    <!-- Côté droit - Formulaire -->
+    <div class="login-form-side">
+      <div class="login-html">
+        <h2>Login to your account</h2>
+
+        <div id="message"></div>
+
+        <div class="login-form">
+          <div class="group">
+            <label for="username" class="label">Username</label>
+            <input id="username" type="text" class="input" placeholder="Enter your username" required>
+          </div>
+          <div class="group">
+            <label for="password" class="label">Password</label>
+            <input id="password" type="password" class="input" placeholder="••••••••" required>
+          </div>
+          <div class="group">
+            <button id="loginBtn" class="button">Login</button>
+          </div>
+          <div class="foot-lnk">
+            Don't have an account? <a href="{% url 'signup' %}">Sign up</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const loginBtn = document.getElementById('loginBtn');
+    const messageEl = document.getElementById('message');
+
+    function showMessage(text, isError = true) {
+      if (messageEl) {
+        messageEl.textContent = text;
+        messageEl.className = isError ? 'error' : 'success';
+      }
+    }
+
+    loginBtn.addEventListener('click', async function() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      // Validation simple
+      if (!username || !password) {
+        showMessage('Please fill in all fields');
+        return;
+      }
+
+      // Afficher le chargement
+      loginBtn.classList.add('loading');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Signing in...';
+
+      try {
+        const res = await fetch("{% url 'login' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+          },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showMessage(data.message || 'Login successful!', false);
+          // Redirection après succès
+          setTimeout(() => {
+          window.location.href = data.redirect_url || '/';
+          }, 1000);
+        } else {
+          showMessage(data.error || 'Login failed');
+        }
+      } catch (err) {
+        showMessage('Network error. Please try again.');
+      } finally {
+        loginBtn.classList.remove('loading');
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+      }
+    });
+  });
+  </script>
+</body>
+</html>

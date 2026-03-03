@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Sign up</title>
+  <link rel="stylesheet" href="{% static 'accounts/css/signup2.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/fr.js"></script>
+
+</head>
+<body>
+  <div class="container">
+    <!-- Left side: Form -->
+    <div class="signup-form">
+      <h2>Create your account</h2>
+
+      <div id="message"></div>
+
+      <!-- Step indicator -->
+      <div class="progress-bar">
+        <div class="progress-step active" data-step="1">1</div>
+        <div class="progress-step" data-step="2">2</div>
+      </div>
+
+      <div class="signup-steps">
+
+        <!-- Step 1 -->
+        <div class="step active" id="step1">
+          <div class="group">
+            <label for="first_name" class="label required">First name</label>
+            <input class="input" id="first_name" type="text" placeholder="John" required />
+          </div>
+          <div class="group">
+            <label for="last_name" class="label required">Last name</label>
+            <input class="input" id="last_name" type="text" placeholder="Doe" required />
+          </div>
+          <div class="group">
+            <label for="username" class="label required">Username</label>
+            <input class="input" id="username" type="text" placeholder="johndoe123" required />
+          </div>
+          <div class="group">
+            <label for="password" class="label required">Password</label>
+            <input class="input" id="password" type="password" placeholder="••••••••" required />
+          </div>
+          <div class="group">
+            <label for="confirm_password" class="label required">Confirm password</label>
+            <input class="input" id="confirm_password" type="password" placeholder="••••••••" required />
+          </div>
+
+          <div class="buttons-row">
+            <div></div>
+            <button type="button" id="toStep2" class="button primary-button">Next ➜</button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step" id="step2">
+          <div class="group">
+            <label class="label required">Gender</label>
+            <div class="gender-options">
+              <label class="radio-btn">
+                <input type="radio" name="gender" value="Male" required />
+                <span>Male</span>
+              </label>
+              <label class="radio-btn">
+                <input type="radio" name="gender" value="Female" required />
+                <span>Female</span>
+              </label>
+            </div>
+          </div>
+          <div class="group">
+            <label for="birthday" class="label required">Birthday</label>
+<input class="input" id="birthday" type="text" placeholder="dd/mm/yyyy" required />
+
+          </div>
+          <div class="group">
+            <label for="height" class="label required">Height (cm)</label>
+            <input class="input" id="height" type="number" step="0.1" min="100" max="250" placeholder="175" required />
+          </div>
+          <div class="group">
+            <label for="weight" class="label required">Weight (kg)</label>
+            <input class="input" id="weight" type="number" step="0.1" min="30" max="200" placeholder="70" required />
+          </div>
+
+          <!-- NEW: Goal field -->
+          <div class="group">
+            <label for="goal" class="label required">Goal</label>
+            <select class="input" id="goal" required>
+              <option value="">Select your goal</option>
+              <option value="lose">Lose Weight</option>
+              <option value="maintain">Maintain Weight</option>
+              <option value="gain">Gain Weight</option>
+            </select>
+          </div>
+
+          <div class="buttons-row">
+            <button type="button" id="backToStep1" class="button back-button">⬅ Back</button>
+            <button type="button" id="submitBtn" class="button primary-button">Create account</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="login-link">
+        Already have an account? <a href="{% url 'login' %}">Sign in</a>
+      </div>
+
+    </div>
+
+    <!-- Right side: Image -->
+    <div class="signup-image">
+      <img src="{% static 'accounts/images/signup-image.jpg' %}" alt="Signup Image" />
+    </div>
+  </div>
+ <script>
+document.addEventListener('DOMContentLoaded', function() {
+  flatpickr("#birthday", {
+    dateFormat: "d/m/Y",
+    locale: "fr" ,
+    allowInput: true
+  });
+});
+</script>
+
+  <script src="{% static 'accounts/js/signup2.js' %}"></script>
+</body>
+</html>

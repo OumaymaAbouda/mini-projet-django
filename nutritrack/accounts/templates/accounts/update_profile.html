@@ -1,0 +1,277 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - {{ user.username }} • FitnessHub</title>
+    <link rel="stylesheet" href="{% static 'accounts/css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'accounts/css/update.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar (identique à votre profil) -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fas fa-dumbbell"></i>
+            <h1>Fitness<span>Hub</span></h1>
+        </div>
+
+        <!-- Profil utilisateur -->
+        <div class="user-info">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info-text">
+                    <h4>{{ user.username }}</h4>
+                    <p>Premium Member</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{% url 'home' %}">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'workout_plan' %}">
+                    <i class="fas fa-dumbbell"></i>
+                    <span>Workouts</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'nutrition:nutrition_plan' %}">
+                    <i class="fas fa-utensils"></i>
+                    <span>Nutrition</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'my_meals' %}">
+                    <i class="fas fa-apple-alt"></i>
+                    <span>My Meals</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'profile' %}" class="active">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                    <span class="badge">Active</span>
+                </a>
+            </div>
+
+            <!-- LOGOUT -->
+            <div class="nav-item logout-item">
+                <form method="POST" action="{% url 'logout' %}" class="logout-form-sidebar">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p><i class="fas fa-heartbeat"></i> Stay Healthy!</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="page-title">
+                <div>
+                    <h1>✏️ Edit Profile</h1>
+                    <p class="page-subtitle">Update your personal information and preferences</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{% url 'profile' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Profile
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+                <button class="message-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Edit Form -->
+        <div class="profile-content">
+            <form method="POST" class="edit-form">
+                {% csrf_token %}
+
+                <div class="profile-section">
+                    <h3><i class="fas fa-user-circle"></i> Personal Information</h3>
+
+                    <!-- User Form Fields -->
+                    <div class="form-grid">
+                        <div class="form-group {% if user_form.first_name.errors %}error{% endif %}">
+                            <label for="{{ user_form.first_name.id_for_label }}">
+                                <i class="fas fa-user"></i>
+                                First Name
+                            </label>
+                            {{ user_form.first_name }}
+                            {% if user_form.first_name.errors %}
+                                <div class="error">{{ user_form.first_name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group {% if user_form.last_name.errors %}error{% endif %}">
+                            <label for="{{ user_form.last_name.id_for_label }}">
+                                <i class="fas fa-user"></i>
+                                Last Name
+                            </label>
+                            {{ user_form.last_name }}
+                            {% if user_form.last_name.errors %}
+                                <div class="error">{{ user_form.last_name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group {% if user_form.username.errors %}error{% endif %}">
+                            <label for="{{ user_form.username.id_for_label }}">
+                                <i class="fas fa-user-tag"></i>
+                                Username
+                            </label>
+                            {{ user_form.username }}
+                            {% if user_form.username.errors %}
+                                <div class="error">{{ user_form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Profile Form Fields -->
+                    <div class="form-grid">
+                        <div class="form-group {% if profile_form.gender.errors %}error{% endif %}">
+                            <label for="{{ profile_form.gender.id_for_label }}">
+                                <i class="fas fa-venus-mars"></i>
+                                Gender
+                            </label>
+                            {{ profile_form.gender }}
+                            {% if profile_form.gender.errors %}
+                                <div class="error">{{ profile_form.gender.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group {% if profile_form.birthday.errors %}error{% endif %}">
+                            <label for="{{ profile_form.birthday.id_for_label }}">
+                                <i class="fas fa-birthday-cake"></i>
+                                Birthday
+                            </label>
+                            {{ profile_form.birthday }}
+                            {% if profile_form.birthday.errors %}
+                                <div class="error">{{ profile_form.birthday.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group {% if profile_form.height.errors %}error{% endif %}">
+                            <label for="{{ profile_form.height.id_for_label }}">
+                                <i class="fas fa-ruler-vertical"></i>
+                                Height (cm)
+                            </label>
+                            {{ profile_form.height }}
+                            {% if profile_form.height.errors %}
+                                <div class="error">{{ profile_form.height.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group {% if profile_form.weight.errors %}error{% endif %}">
+                            <label for="{{ profile_form.weight.id_for_label }}">
+                                <i class="fas fa-weight-scale"></i>
+                                Weight (kg)
+                            </label>
+                            {{ profile_form.weight }}
+                            {% if profile_form.weight.errors %}
+                                <div class="error">{{ profile_form.weight.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group {% if profile_form.goal.errors %}error{% endif %}">
+                            <label for="{{ profile_form.goal.id_for_label }}">
+                                <i class="fas fa-bullseye"></i>
+                                Fitness Goal
+                            </label>
+                            {{ profile_form.goal }}
+                            {% if profile_form.goal.errors %}
+                                <div class="error">{{ profile_form.goal.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'profile' %}" class="btn-cancel">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Confirmation pour logout
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutForm = document.querySelector('.logout-form-sidebar');
+        if (logoutForm) {
+            logoutForm.addEventListener('submit', function(e) {
+                if (!confirm('Are you sure you want to logout?')) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Auto-hide messages after 5 seconds
+        const messages = document.querySelectorAll('.message');
+        messages.forEach(message => {
+            setTimeout(() => {
+                message.style.opacity = '0';
+                setTimeout(() => {
+                    if (message.parentNode) {
+                        message.parentNode.removeChild(message);
+                    }
+                }, 300);
+            }, 5000);
+        });
+
+        // Add close functionality to messages
+        messages.forEach(message => {
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'message-close';
+            closeBtn.innerHTML = '×';
+            closeBtn.onclick = function() {
+                message.style.opacity = '0';
+                setTimeout(() => {
+                    if (message.parentNode) {
+                        message.parentNode.removeChild(message);
+                    }
+                }, 300);
+            };
+            message.appendChild(closeBtn);
+        });
+    });
+</script>
+</body>
+</html>

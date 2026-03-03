@@ -1,0 +1,395 @@
+/* ===== VARIABLES ===== */
+:root {
+    --primary: #10b981;
+    --primary-dark: #047857;
+    --primary-light: #34d399;
+    --secondary: #8b5cf6;
+    --accent: #f59e0b;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --background: #f8fafc;
+    --surface: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --border: #e2e8f0;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius: 8px;
+    --radius-lg: 12px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Couleurs orange pour les boutons */
+    --orange: #FF8C00;
+    --orange-dark: #E67E00;
+    --orange-light: #FFA500;
+    --orange-glow: rgba(255, 140, 0, 0.4);
+}
+
+/* ===== RESET & BASE ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--background);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ===== LAYOUT ===== */
+.app-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+/* ===== NAVBAR REDUITE ===== */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    padding-left: calc(50vw - 400px);
+    padding-right: calc(50vw - 400px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+}
+
+.brand-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brand-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Bouton primaire ORANGE */
+.btn-primary {
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    color: white;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--orange);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--orange-dark), var(--orange));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), 0 8px 25px 0 var(--orange-glow);
+    border-color: var(--orange-dark);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+
+.btn-large {
+    padding: 14px 24px;
+    font-size: 1rem;
+    width: 100%;
+}
+
+/* ===== FORMS ===== */
+.form-container {
+    padding: 2.5rem;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 3rem; /* Augmenté */
+}
+
+.form-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.form-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Django Form Styling */
+.django-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.form-grid {
+    display: grid;
+    gap: 2rem; /* Augmenté */
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.75rem; /* Augmenté */
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.required {
+    color: var(--error);
+    margin-left: 2px;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.django-form input,
+.django-form select,
+.django-form textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition: var(--transition);
+    background: var(--surface);
+    font-family: inherit;
+}
+
+.django-form input:focus,
+.django-form select:focus,
+.django-form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    transform: translateY(-1px);
+}
+
+.django-form select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.help-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem; /* Augmenté */
+    line-height: 1.4;
+}
+
+.error-list {
+    margin-top: 0.5rem; /* Augmenté */
+}
+
+.error {
+    color: var(--error);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Espacement supplémentaire avant le bouton */
+.form-actions {
+    margin-top: 3rem; /* Espacement augmenté */
+    text-align: center;
+}
+
+/* Alternative si le bouton est dans le formulaire */
+.django-form .btn-large {
+    margin-top: 3rem; /* Espacement augmenté */
+}
+
+/* ===== ICONS ===== */
+.icon {
+    width: 18px;
+    height: 18px;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .app-container {
+        padding: 0 15px;
+    }
+
+    .navbar {
+        flex-direction: column;
+        gap: 0.75rem;
+        text-align: center;
+        padding: 0.75rem 0;
+    }
+
+    .form-container {
+        padding: 2rem 1.5rem; /* Ajusté */
+    }
+
+    .form-header {
+        margin-bottom: 2.5rem; /* Ajusté pour mobile */
+    }
+
+    .form-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .form-grid {
+        gap: 1.75rem; /* Ajusté pour mobile */
+    }
+
+    .form-actions {
+        margin-top: 2.5rem; /* Ajusté pour mobile */
+    }
+
+    .django-form .btn-large {
+        margin-top: 2.5rem; /* Ajusté pour mobile */
+    }
+
+    .brand {
+        font-size: 1.1rem;
+    }
+
+    .brand-icon {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-actions {
+        gap: 0.5rem;
+    }
+
+    .btn {
+        padding: 8px 14px;
+        font-size: 0.75rem;
+    }
+
+    .btn-large {
+        padding: 12px 20px;
+    }
+
+    .django-form input,
+    .django-form select,
+    .django-form textarea {
+        padding: 12px 14px;
+    }
+
+    .form-container {
+        padding: 1.5rem 1.25rem; /* Réduit sur très petits écrans */
+    }
+
+    .form-header {
+        margin-bottom: 2rem; /* Réduit sur très petits écrans */
+    }
+
+    .form-grid {
+        gap: 1.5rem; /* Réduit sur très petits écrans */
+    }
+
+    .form-actions {
+        margin-top: 2rem; /* Réduit sur très petits écrans */
+    }
+
+    .django-form .btn-large {
+        margin-top: 2rem; /* Réduit sur très petits écrans */
+    }
+}
