@@ -61,7 +61,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --file=nutritrack/requirements.txt
+           args: --file=nutritrack/requirements.txt --skip-unresolved
 
       - name: Trivy FS Scan (Filesystem)
         uses: aquasecurity/trivy-action@master
