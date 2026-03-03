@@ -83,10 +83,13 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Construction locale pour scan de l'image avant l'envoi
+      # MÉTHODE CORRIGÉE : On utilise l'action officielle au lieu d'une ligne de commande
       - name: Build image for testing
-        run: |
-          docker build -t ${{ env.DOCKER_IMAGE }}:test ./nutritrack
+        uses: docker/build-push-action@v5
+        with:
+          context: ./nutritrack
+          load: true  # Charge l'image localement pour pouvoir la scanner après
+          tags: ${{ env.DOCKER_IMAGE }}:test
 
       - name: Trivy Image Scan
         uses: aquasecurity/trivy-action@master
@@ -102,4 +105,4 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_IMAGE }}:latest
-            ${{ env.DOCKER_IMAGE }}:v${{ github.run_number }} 
+            ${{ env.DOCKER_IMAGE }}:v${{ github.run_number }}
