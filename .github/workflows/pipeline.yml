@@ -101,4 +101,4 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_IMAGE }}:latest
-            ${{ env.DOCKER_IMAGE }}:v${{ github.run_number }}
+            ${{ env.DOCKER_IMAGE }}:v${{ github.run_number }} 
