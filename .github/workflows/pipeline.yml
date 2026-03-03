@@ -83,6 +83,7 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Construction locale pour scan de l'image avant l'envoi
       - name: Build image for testing
         run: |
           docker build -t ${{ env.DOCKER_IMAGE }}:test ./nutritrack
