@@ -10,9 +10,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-v1vbvsl!v7d#^cjy$rrp!
 # SÉCURITÉ : Ne pas laisser DEBUG=True en production
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-# Autoriser localhost pour Docker et le développement
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
-
+# MODIFICATION OBLIGATOIRE : Ajout de '*' pour accepter l'IP publique d'AWS
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '*']
 
 # Applications installées
 INSTALLED_APPS = [
@@ -59,9 +58,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'nutritrack.wsgi.application'
 
-
-# CONFIGURATION POSTGRESQL (pour Docker)
-# Si les variables d'environnement ne sont pas trouvées, il essaiera d'utiliser les valeurs par défaut
+# CONFIGURATION POSTGRESQL (Ta version préférée)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -73,7 +70,6 @@ DATABASES = {
     }
 }
 
-
 # Validation des mots de passe
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -82,17 +78,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
 # Internationalisation
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-
 # Fichiers statiques (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles' # Requis pour la production/Docker
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_DIRS = [
     BASE_DIR / 'accounts' / 'static',
