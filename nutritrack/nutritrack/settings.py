@@ -10,8 +10,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-v1vbvsl!v7d#^cjy$rrp!
 # SÉCURITÉ : Ne pas laisser DEBUG=True en production
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-# Autoriser localhost pour Docker et le développement
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+# MODIFICATION OBLIGATOIRE : On ajoute '*' pour que l'IP d'AWS soit acceptée
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '*']
 
 
 # Applications installées
@@ -60,8 +60,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'nutritrack.wsgi.application'
 
 
-# CONFIGURATION POSTGRESQL (pour Docker)
-# Si les variables d'environnement ne sont pas trouvées, il essaiera d'utiliser les valeurs par défaut
+# CONFIGURATION POSTGRESQL (Ta version)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',

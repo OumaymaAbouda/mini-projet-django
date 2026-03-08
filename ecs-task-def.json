@@ -6,11 +6,28 @@
             "name": "nutritrack-app",
             "image": "oumaymaaaaaaaa/nutritrack-app:latest",
             "portMappings": [{ "containerPort": 8000, "hostPort": 8000, "protocol": "tcp" }],
-            "essential": true
+            "essential": true,
+            "environment": [
+                { "name": "POSTGRES_HOST", "value": "localhost" },
+                { "name": "POSTGRES_DB", "value": "nutritrack_db" },
+                { "name": "POSTGRES_USER", "value": "admin" },
+                { "name": "POSTGRES_PASSWORD", "value": "pass123" }
+            ]
+        },
+        {
+            "name": "postgres-db",
+            "image": "postgres:15",
+            "essential": true,
+            "environment": [
+                { "name": "POSTGRES_DB", "value": "nutritrack_db" },
+                { "name": "POSTGRES_USER", "value": "admin" },
+                { "name": "POSTGRES_PASSWORD", "value": "pass123" }
+            ]
         }
     ],
     "requiresCompatibilities": ["FARGATE"],
-    "cpu": "256", "memory": "512",
+    "cpu": "512", 
+    "memory": "1024",
     "executionRoleArn": "LabRole",
     "taskRoleArn": "LabRole"
 }
