@@ -1,0 +1,16 @@
+{
+    "family": "nutritrack-task",
+    "networkMode": "awsvpc",
+    "containerDefinitions": [
+        {
+            "name": "nutritrack-app",
+            "image": "oumaymaaaaaaaa/nutritrack-app:latest",
+            "portMappings": [{ "containerPort": 8000, "hostPort": 8000, "protocol": "tcp" }],
+            "essential": true
+        }
+    ],
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "256", "memory": "512",
+    "executionRoleArn": "LabRole",
+    "taskRoleArn": "LabRole"
+}
