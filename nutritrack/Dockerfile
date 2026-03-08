@@ -27,4 +27,5 @@ COPY . /app/
 EXPOSE 8000
 
 # 8. Commande par défaut (sera surchargée par docker-compose pour le développement)
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Remplace la dernière ligne par celle-ci (sh -c permet de chaîner les commandes)
+CMD sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
