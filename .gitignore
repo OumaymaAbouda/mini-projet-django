@@ -1,0 +1,38 @@
+# --- Python & Django ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+db.sqlite3
+media/
+staticfiles/
+static/
+
+# --- Terraform (TRÈS IMPORTANT) ---
+# On ignore les fichiers d'état local car ils peuvent contenir des secrets
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+.terraform.lock.hcl
+.terraform.tfstate.lock.info
+
+# --- Docker ---
+.docker/
+# Si tu as un fichier .env pour docker-compose, ignore-le
+.env.docker
+
+# --- IDE & Système ---
+.vscode/
+.idea/
+.DS_Store
+*.log
+*.tmp
+
+# --- AWS Academy / Vocareum ---
+# Au cas où tu téléchargerais tes clés dans le dossier du projet
+accessKeys.csv
+credentials
