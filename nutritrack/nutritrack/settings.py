@@ -1,3 +1,4 @@
+
 import os
 from pathlib import Path
 
@@ -10,8 +11,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-v1vbvsl!v7d#^cjy$rrp!
 # SÉCURITÉ : Ne pas laisser DEBUG=True en production
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-# MODIFICATION : Autoriser toutes les IP pour que l'app soit visible sur AWS
-ALLOWED_HOSTS = ['*']
+# Autoriser localhost pour Docker et le développement
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+
 
 # Applications installées
 INSTALLED_APPS = [
@@ -59,12 +61,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'nutritrack.wsgi.application'
 
 
-# MODIFICATION : On utilise SQLite temporairement pour le déploiement AWS
-# Cela évite que l'application crash car elle ne trouve pas le container Postgres sur AWS.
+# CONFIGURATION POSTGRESQL (pour Docker)
+# Si les variables d'environnement ne sont pas trouvées, il essaiera d'utiliser les valeurs par défaut
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB', 'nutritrack_db'),
+        'USER': os.environ.get('POSTGRES_USER', 'admin'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'pass123'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'db'), 
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     }
 }
 
